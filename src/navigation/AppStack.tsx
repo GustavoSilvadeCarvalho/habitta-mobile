@@ -3,6 +3,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import AppTabs from './AppTabs';
+import PropertyDetailsScreen from '../screens/App/PropertyDetailsScreen';
 
 const Stack = createStackNavigator();
 
@@ -14,12 +15,14 @@ export default function AppStack() {
                 component={AppTabs}
                 options={{ headerShown: false }}
             />
-
-            {/*
-        Futuramente, se você precisar de uma tela de detalhes que
-        cubra as abas, você a adicionará aqui. Por exemplo:
-        <Stack.Screen name="PropertyDetails" component={PropertyDetailsScreen} />
-      */}
+            <Stack.Screen
+                name="PropertyDetails"
+                component={PropertyDetailsScreen}
+                options={{
+                    headerShown: false,
+                    presentation: 'modal'
+                }}
+            />
         </Stack.Navigator>
     );
 }

@@ -23,7 +23,7 @@ export default function AppTabs() {
                     paddingBottom: 5,
                     paddingTop: 5,
                     borderRadius: 20,
-                    borderWidth: 0,
+                    border: 1,
                     position: 'absolute',
                     marginLeft: '4%',
                     marginRight: '4%',

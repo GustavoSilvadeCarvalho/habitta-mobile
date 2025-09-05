@@ -8,7 +8,7 @@ import ScreenBackground from '../../components/common/ScreenBackground';
 import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }: any) {
     const { user, logout } = useContext(AuthContext);
     const { location, errorMsg } = useLocation();
 
@@ -50,8 +50,13 @@ export default function HomeScreen() {
         });
     }
 
+    const handlePropertyPress = (property: Property) => {
+        navigation.navigate('PropertyDetails', { property });
+    }
+
     return (
         <ScreenBackground style={styles.container}>
+            <Button title="Sair" onPress={logout} color={COLORS.secondary} />
             <Text style={styles.title}>Bem-vindo(a), {user?.name}!</Text>
             {renderLocation()}
 
@@ -100,15 +105,13 @@ export default function HomeScreen() {
                 renderItem={({ item }) => (
                     <PropertyCard
                         property={item}
-                        onPress={() => console.log('Clicou na casa:', item.title)}
+                        onPress={() => handlePropertyPress(item)}
                         onFavoritePress={() => handleFavoritePress(item)}
                         isFavorite={favoritedIds.includes(item.id)}
                     />
                 )}
                 showsVerticalScrollIndicator={false}
             />
-
-            <Button title="Sair" onPress={logout} color={COLORS.secondary} />
         </ScreenBackground>
     );
 }

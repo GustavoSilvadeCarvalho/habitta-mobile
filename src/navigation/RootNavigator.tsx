@@ -3,13 +3,20 @@ import { NavigationContainer } from '@react-navigation/native';
 import { AuthContext } from '../contexts/AuthContext';
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
+import LoadingScreen from '../screens/Auth/LoadingScreen';
 
 export default function RootNavigator() {
-    const { user } = useContext(AuthContext);
+    const { user, isTransitioning } = useContext(AuthContext);
 
     return (
         <NavigationContainer>
-            {user ? <AppStack /> : <AuthStack />}
+            {isTransitioning ? (
+                <LoadingScreen />
+            ) : user ? (
+                <AppStack />
+            ) : (
+                <AuthStack />
+            )}
         </NavigationContainer>
     );
 }
