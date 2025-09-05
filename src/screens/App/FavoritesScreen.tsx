@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../constants/colors';
+import ScreenBackground from '../../components/common/ScreenBackground';
 
 export default function FavoritesScreen() {
     return (
-        <View style={styles.container}>
+        <ScreenBackground style={styles.container}>
             <Text style={styles.title}>Imóveis Salvos</Text>
-        </View>
+        </ScreenBackground>
     );
 }
 

@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../../constants/colors';
+import ScreenBackground from '../../components/common/ScreenBackground';
 
 export default function ProfileScreen() {
     return (
-        <View style={styles.container}>
+        <ScreenBackground style={styles.container}>
             <Text style={styles.title}>Meu Perfil</Text>
             {/* Aqui entrarão as informações do perfil do usuário */}
-        </View>
+        </ScreenBackground>
     );
 }
 

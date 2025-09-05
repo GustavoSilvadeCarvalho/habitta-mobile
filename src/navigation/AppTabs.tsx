@@ -1,13 +1,9 @@
-// CÓDIGO NOVO (COM ESTILIZAÇÃO)
-// src/navigation/AppTabs.tsx
-
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 
-// Importe suas telas
 import HomeScreen from '../screens/App/HomeScreen';
 import FavoritesScreen from '../screens/App/FavoritesScreen';
 import ProfileScreen from '../screens/App/ProfileScreen';
@@ -19,44 +15,27 @@ export default function AppTabs() {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
-                tabBarShowLabel: false,
+                headerShown: false,
+                tabBarShowLabel: true,
                 tabBarStyle: {
                     elevation: 0,
-                    backgroundColor: 'transparent',
                     height: 70,
-                    borderTopColor: COLORS.gray,
-                    borderTopWidth: 0,
                     paddingBottom: 5,
-                    borderRadius: 15,
+                    paddingTop: 5,
+                    borderRadius: 20,
+                    borderWidth: 0,
                     position: 'absolute',
-                    marginLeft: '5%',
-                    marginRight: '5%',
+                    marginLeft: '4%',
+                    marginRight: '4%',
                     width: 'auto',
                     bottom: 50,
+                    overflow: 'hidden',
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
                 },
-
-                tabBarBackground: () => (
-                    <BlurView tint="light" intensity={80} style={StyleSheet.absoluteFillObject} />
-                ),
-
                 tabBarActiveTintColor: COLORS.primary,
                 tabBarInactiveTintColor: COLORS.gray,
-
-                tabBarLabelStyle: {
-                    fontSize: 12,
-                    fontWeight: '600',
-                },
-
-                headerStyle: {
-                    backgroundColor: COLORS.primary,
-                },
-                headerTintColor: COLORS.white,
-                headerTitleStyle: {
-                    fontWeight: 'bold',
-                },
-
                 tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
+                    let iconName: React.ComponentProps<typeof Ionicons>['name'] = 'help-circle';
 
                     if (route.name === 'Início') {
                         iconName = focused ? 'home' : 'home-outline';
