@@ -20,7 +20,10 @@
     "react-native-screens": "~4.11.1",
     "expo-blur": "~14.1.5",
     "expo-location": "~18.1.6",
-    "expo-linear-gradient": "~14.1.5"
+    "expo-linear-gradient": "~14.1.5",
+    "react-dom": "19.0.0",
+    "react-native-web": "^0.20.0",
+    "@expo/metro-runtime": "~5.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

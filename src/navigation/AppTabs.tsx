@@ -5,6 +5,7 @@ import { StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 
 import HomeScreen from '../screens/App/HomeScreen';
+import ExploreScreen from '../screens/App/ExploreScreen';
 import FavoritesScreen from '../screens/App/FavoritesScreen';
 import ProfileScreen from '../screens/App/ProfileScreen';
 import { COLORS } from '../constants/colors';
@@ -39,6 +40,8 @@ export default function AppTabs() {
 
                     if (route.name === 'Início') {
                         iconName = focused ? 'home' : 'home-outline';
+                    } else if (route.name === 'Explorar') {
+                        iconName = focused ? 'search' : 'search-outline';
                     } else if (route.name === 'Salvos') {
                         iconName = focused ? 'heart' : 'heart-outline';
                     } else if (route.name === 'Perfil') {
@@ -50,6 +53,7 @@ export default function AppTabs() {
             })}
         >
             <Tab.Screen name="Início" component={HomeScreen} />
+            <Tab.Screen name="Explorar" component={ExploreScreen}/>
             <Tab.Screen name="Salvos" component={FavoritesScreen} />
             <Tab.Screen name="Perfil" component={ProfileScreen} />
         </Tab.Navigator>

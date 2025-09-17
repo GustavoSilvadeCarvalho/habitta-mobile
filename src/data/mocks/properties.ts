@@ -13,6 +13,7 @@ export const MOCKED_PROPERTIES: Property[] = [
     address: "12 Kingfisher Drive, Doncaster, VIC",
     description:
       "A spacious, sunlit family home with an open-plan living area, a private backyard...",
+      type: "House"
   },
   {
     id: "2",
@@ -26,6 +27,7 @@ export const MOCKED_PROPERTIES: Property[] = [
     address: "45 Main St, Melbourne, VIC",
     description:
       "A stylish apartment in the heart of the city, close to shops and restaurants.",
+      type: "Apartment"
   },
   {
     id: "3",
@@ -38,6 +40,7 @@ export const MOCKED_PROPERTIES: Property[] = [
     garages: 2,
     address: "78 Ocean View Rd, Byron Bay, NSW",
     description:
-      "A stunning villa with panoramic ocean views, a private pool, and modern amenities.",
+      "A stunning villa with panoramic ocean views, a private pool, and modern amenities.", 
+    type: "Villa"
   },
 ];

@@ -13,6 +13,7 @@ export interface Property {
     garages: number;
     address: string;
     description: string;
+    type: string;
 }
 
 interface PropertyCardProps {
