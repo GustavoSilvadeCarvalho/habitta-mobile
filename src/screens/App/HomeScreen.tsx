@@ -1,46 +1,20 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, Button, StyleSheet, ActivityIndicator, TextInput, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants/colors';
-import useLocation from '../../hooks/useLocation';
-import { Ionicons } from '@expo/vector-icons';
 import ScreenBackground from '../../components/common/ScreenBackground';
 import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
+import { Ionicons } from '@expo/vector-icons';
+import useLocation from '../../hooks/useLocation';
 
 export default function HomeScreen({ navigation }: any) {
     const { user, logout } = useContext(AuthContext);
     const { location, errorMsg } = useLocation();
-
-    const categories = ['All', 'House', 'Apartment', 'Farm House', 'Shop', 'Villa', 'Condo'];
-    const [selectedCategory, setSelectedCategory] = useState('All');
-
     const [favoritedIds, setFavoritedIds] = useState<string[]>([]);
-
-    const renderLocation = () => {
-        if (errorMsg) {
-            return <Text style={styles.locationText}>{errorMsg}</Text>;
-        }
-        if (location) {
-            return (
-                <View style={styles.locationContainer}>
-                    <Ionicons name="location-sharp" size={16} color={COLORS.text} />
-                    <Text style={styles.locationText}> {location}</Text>
-                </View>
-            );
-        }
-        return <ActivityIndicator color={COLORS.text} />;
-    };
 
     const handleFavoritePress = (property: Property) => {
         const isAlreadyFavorite = favoritedIds.includes(property.id);
-
-        if (isAlreadyFavorite) {
-            console.log(`Desfavoritou: ${property.title}`);
-        } else {
-            console.log(`Favoritou: ${property.title}`);
-        }
-
         setFavoritedIds(prevIds => {
             if (isAlreadyFavorite) {
                 return prevIds.filter(id => id !== property.id);
@@ -48,59 +22,36 @@ export default function HomeScreen({ navigation }: any) {
                 return [...prevIds, property.id];
             }
         });
-    }
+    };
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
-    }
+    };
+    
+    // vai exibir até 5 imóveis em destaque; podemos decidir o design melhor futuramente
+    const featuredProperties = MOCKED_PROPERTIES.slice(0, 5);
 
     return (
         <ScreenBackground style={styles.container}>
-            <Button title="Sair" onPress={logout} color={COLORS.secondary} />
-            <Text style={styles.title}>Bem-vindo(a), {user?.name}!</Text>
-            {renderLocation()}
-
-            <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Procure casas, apartamentos..."
-                    placeholderTextColor={COLORS.gray}
-                />
+            <View style={styles.header}>
+                <View>
+                    <Text style={styles.welcomeText}>Bem-vindo(a),</Text>
+                    <Text style={styles.userName}>{user?.name}!</Text>
+                </View>
+                <TouchableOpacity onPress={logout} style={styles.logoutButton}>
+                    <Text style={styles.logoutButtonText}>Sair</Text>
+                </TouchableOpacity>
             </View>
 
-            <View style={styles.categoryContainer}>
-                <FlatList
-                    data={categories}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                    keyExtractor={(item) => item}
-                    renderItem={({ item }) => {
-                        const isSelected = selectedCategory === item;
-                        return (
-                            <TouchableOpacity
-                                onPress={() => setSelectedCategory(item)}
-                                style={[
-                                    styles.categoryBtn,
-                                    isSelected && styles.categoryBtnSelected
-                                ]}
-                            >
-                                <Text
-                                    style={[
-                                        styles.categoryTxt,
-                                        isSelected && styles.categoryTxtSelected
-                                    ]}
-                                >
-                                    {item}
-                                </Text>
-                            </TouchableOpacity>
-                        );
-                    }}
-                />
+            <View style={styles.locationContainer}>
+                <Ionicons name="location-sharp" size={16} color={COLORS.text} />
+                <Text style={styles.locationText}>{location || errorMsg || "Carregando..."}</Text>
             </View>
+            
+            <Text style={styles.sectionTitle}>Imóveis em Destaque</Text>
 
             <FlatList
-                data={MOCKED_PROPERTIES}
+                data={featuredProperties}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <PropertyCard
@@ -111,6 +62,7 @@ export default function HomeScreen({ navigation }: any) {
                     />
                 )}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.flatlistContent}
             />
         </ScreenBackground>
     );
@@ -119,67 +71,51 @@ export default function HomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.background,
         paddingTop: 65,
+        paddingHorizontal: 16,
     },
-    title: {
-        fontSize: 22,
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    welcomeText: {
+        fontSize: 18,
+        color: COLORS.text,
+    },
+    userName: {
+        fontSize: 24,
         fontWeight: 'bold',
+        color: COLORS.text,
+    },
+    logoutButton: {
         padding: 8,
+        borderRadius: 8,
+        backgroundColor: COLORS.secondary,
+    },
+    logoutButtonText: {
+        color: COLORS.white,
+        fontWeight: 'bold',
     },
     locationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 8,
-        borderRadius: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        paddingVertical: 8,
     },
     locationText: {
         fontSize: 16,
         color: COLORS.text,
+        marginLeft: 5,
     },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: COLORS.white,
-        height: 50,
-        borderRadius: 12,
-        paddingHorizontal: 15,
-        marginHorizontal: 8,
-        marginTop: 20,
-    },
-    searchIcon: {
-        marginRight: 10,
-    },
-    input: {
-        flex: 1,
-        height: '100%',
-        fontSize: 16,
-        color: COLORS.text,
-    },
-    categoryContainer: {
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
         marginTop: 20,
         marginBottom: 10,
-        height: 50,
+        color: COLORS.text,
     },
-    categoryBtn: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        marginHorizontal: 5,
-        borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'transparent',
-    },
-    categoryBtnSelected: {
-        backgroundColor: COLORS.primary,
-    },
-    categoryTxt: {
-        color: '#888888',
-        fontWeight: '500',
-    },
-    categoryTxtSelected: {
-        color: '#FFFFFF',
-        fontWeight: 'bold',
+    flatlistContent: {
+        paddingBottom: 20,
     },
 });
