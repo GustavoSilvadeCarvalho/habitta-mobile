@@ -6,11 +6,15 @@ import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
 import { COLORS } from '../../constants/colors';
 
+import { useFavorites } from '../../hooks/UseFavorites';
+
 export default function ExploreScreen({ navigation }: any) {
     const [searchText, setSearchText] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
+
+    const { favoritedIds, toggleFavorite, isPropertyFavorite } = useFavorites();
     
     const categories = ['All', 'House', 'Apartment', 'Farm House', 'Shop', 'Villa', 'Condo'];
 
@@ -44,11 +48,15 @@ export default function ExploreScreen({ navigation }: any) {
         }
 
         return properties;
-    }, [selectedCategory, searchText, minPrice, maxPrice]);
+    }, [selectedCategory, searchText, minPrice, maxPrice, favoritedIds]);
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
     };
+
+    const handleFavoritePress = async (property: Property) => {
+    await toggleFavorite(property);
+};
 
     return (
         <ScreenBackground style={styles.container}>
@@ -115,6 +123,9 @@ export default function ExploreScreen({ navigation }: any) {
                         property={item}
                         onPress={() => handlePropertyPress(item)}
                         // adicionar a lógica dos favs futuramente aqui <---
+                        onFavoritePress={() => handleFavoritePress(item)}
+                        isFavorite={isPropertyFavorite(item.id)}
+                        key={item.id + favoritedIds.includes(item.id)}
                     />
                 )}
                 showsVerticalScrollIndicator={false}

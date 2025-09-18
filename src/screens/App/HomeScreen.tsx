@@ -7,21 +7,15 @@ import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
 import { Ionicons } from '@expo/vector-icons';
 import useLocation from '../../hooks/useLocation';
+import { useFavorites } from '../../hooks/UseFavorites';
 
 export default function HomeScreen({ navigation }: any) {
     const { user, logout } = useContext(AuthContext);
     const { location, errorMsg } = useLocation();
-    const [favoritedIds, setFavoritedIds] = useState<string[]>([]);
+    const { toggleFavorite, isPropertyFavorite } = useFavorites();
 
-    const handleFavoritePress = (property: Property) => {
-        const isAlreadyFavorite = favoritedIds.includes(property.id);
-        setFavoritedIds(prevIds => {
-            if (isAlreadyFavorite) {
-                return prevIds.filter(id => id !== property.id);
-            } else {
-                return [...prevIds, property.id];
-            }
-        });
+    const handleFavoritePress = async (property: Property) => {
+    await toggleFavorite(property);
     };
 
     const handlePropertyPress = (property: Property) => {
@@ -58,7 +52,7 @@ export default function HomeScreen({ navigation }: any) {
                         property={item}
                         onPress={() => handlePropertyPress(item)}
                         onFavoritePress={() => handleFavoritePress(item)}
-                        isFavorite={favoritedIds.includes(item.id)}
+                        isFavorite={isPropertyFavorite(item.id)}
                     />
                 )}
                 showsVerticalScrollIndicator={false}
