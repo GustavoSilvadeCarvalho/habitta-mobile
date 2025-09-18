@@ -6,12 +6,16 @@ import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
 import { COLORS } from '../../constants/colors';
 
+import { useFavorites } from '../../hooks/UseFavorites';
+
 export default function ExploreScreen({ navigation }: any) {
     const [searchText, setSearchText] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
-    
+
+    const { favoritedIds, toggleFavorite, isPropertyFavorite } = useFavorites();
+
     const categories = ['All', 'House', 'Apartment', 'Farm House', 'Shop', 'Villa', 'Condo'];
 
     const filteredProperties = useMemo(() => {
@@ -28,14 +32,14 @@ export default function ExploreScreen({ navigation }: any) {
                 (prop.description && prop.description.toLowerCase().includes(lowercasedSearchText))
             );
         }
-        
+
         if (minPrice !== '') {
             const min = Number(minPrice);
             if (!isNaN(min)) {
                 properties = properties.filter(prop => prop.price >= min);
             }
         }
-        
+
         if (maxPrice !== '') {
             const max = Number(maxPrice);
             if (!isNaN(max)) {
@@ -48,6 +52,10 @@ export default function ExploreScreen({ navigation }: any) {
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
+    };
+
+    const handleFavoritePress = async (property: Property) => {
+        await toggleFavorite(property);
     };
 
     return (
@@ -84,7 +92,7 @@ export default function ExploreScreen({ navigation }: any) {
                     value={maxPrice}
                 />
             </View>
-            
+
             <View style={styles.categoryContainer}>
                 <FlatList
                     data={categories}
@@ -114,7 +122,8 @@ export default function ExploreScreen({ navigation }: any) {
                     <PropertyCard
                         property={item}
                         onPress={() => handlePropertyPress(item)}
-                        // adicionar a lógica dos favs futuramente aqui <---
+                        onFavoritePress={() => handleFavoritePress(item)}
+                        isFavorite={isPropertyFavorite(item.id)}
                     />
                 )}
                 showsVerticalScrollIndicator={false}
