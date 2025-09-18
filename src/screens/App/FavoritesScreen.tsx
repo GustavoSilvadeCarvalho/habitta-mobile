@@ -3,19 +3,33 @@ import { Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { COLORS } from '../../constants/colors';
 import ScreenBackground from '../../components/common/ScreenBackground';
 import PropertyCard, { Property } from '../../components/common/PropertyCard';
-import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
 import { useFavorites } from '../../hooks/UseFavorites';
 
 export default function FavoritesScreen({ navigation }: any) {
-    const { favoritedIds, toggleFavorite, clearAllFavorites } = useFavorites();
-    const [savedProperties, setSavedProperties] = useState<Property[]>([]);
 
-    // Carregar imóveis salvos quando os favoritos mudarem
+    const { favoritedIds, toggleFavorite } = useFavorites();
+    const [savedProperties, setSavedProperties] = useState<Property[]>([]);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        const filteredProperties = MOCKED_PROPERTIES.filter(property => 
-            favoritedIds.includes(property.id)
-        );
-        setSavedProperties(filteredProperties);
+        const fetchFavorites = async () => {
+            try {
+                if (favoritedIds.length === 0) {
+                    setSavedProperties([]);
+                    setLoading(false);
+                    return;
+                }
+                const response = await fetch(`http://localhost:3001/properties`);
+                const allProperties = await response.json();
+                const favorites = allProperties.filter((property: Property) => favoritedIds.includes(property.id));
+                setSavedProperties(favorites);
+            } catch (error) {
+                console.error('Erro ao buscar favoritos:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchFavorites();
     }, [favoritedIds]);
 
     const handleFavoritePress = async (property: Property) => {
@@ -29,17 +43,9 @@ export default function FavoritesScreen({ navigation }: any) {
     return (
         <ScreenBackground style={styles.container}>
             <Text style={styles.pageTitle}>Imóveis Salvos</Text>
-            
-            {savedProperties.length > 0 && (
-                <TouchableOpacity 
-                    style={styles.clearButton}
-                    onPress={clearAllFavorites}
-                >
-                    <Text style={styles.clearButtonText}>Limpar Todos</Text>
-                </TouchableOpacity>
-            )}
-            
-            {savedProperties.length === 0 ? (
+            {loading ? (
+                <Text style={styles.emptyMessage}>Carregando favoritos...</Text>
+            ) : savedProperties.length === 0 ? (
                 <Text style={styles.emptyMessage}>
                     Você ainda não salvou nenhum imóvel
                 </Text>
@@ -48,7 +54,6 @@ export default function FavoritesScreen({ navigation }: any) {
                     <Text style={styles.countText}>
                         {savedProperties.length} imóvel(s) salvo(s)
                     </Text>
-                    
                     <FlatList
                         data={savedProperties}
                         keyExtractor={(item) => item.id}

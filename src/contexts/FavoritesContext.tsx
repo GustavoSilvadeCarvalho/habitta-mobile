@@ -1,70 +1,79 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from './AuthContext';
 import { Alert } from 'react-native';
 import { Property } from '../components/common/PropertyCard';
 
-const FAVORITES_KEY = '@favorited_properties';
 
 interface FavoritesContextType {
     favoritedIds: string[];
     toggleFavorite: (property: Property) => Promise<boolean>;
     isPropertyFavorite: (propertyId: string) => boolean;
-    clearAllFavorites: () => Promise<void>;
     loadFavorites: () => Promise<void>;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
+
 
 interface FavoritesProviderProps {
     children: ReactNode;
 }
 
 export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
+    const { user } = useContext(AuthContext);
     const [favoritedIds, setFavoritedIds] = useState<string[]>([]);
+    const userId = user?.id || null;
 
-    // Carregar favoritos ao iniciar
     useEffect(() => {
-        loadFavorites();
+        import('../contexts/AuthContext').then(({ AuthContext }) => {
+            // Precisa ser usado dentro de um componente React
+            // Alternativamente, pode ser passado como prop
+        });
     }, []);
 
+    useEffect(() => {
+        if (userId) {
+            loadFavorites();
+        } else {
+            setFavoritedIds([]);
+        }
+    }, [userId]);
+
     const loadFavorites = async () => {
+        if (!userId) return;
         try {
-            const savedIds = await AsyncStorage.getItem(FAVORITES_KEY);
-            if (savedIds) {
-                setFavoritedIds(JSON.parse(savedIds));
-            }
+            const response = await fetch(`http://localhost:3001/favorites/${userId}`);
+            const data = await response.json();
+            setFavoritedIds(data.map((property: any) => property.id));
         } catch (error) {
             console.error('Erro ao carregar favoritos:', error);
         }
     };
 
     const toggleFavorite = async (property: Property) => {
-        let isAlreadyFavorite = favoritedIds.includes(property.id);
-
+        if (!userId) return false;
+        const isAlreadyFavorite = favoritedIds.includes(property.id);
         try {
-            let newFavoritedIds: string[];
-
             if (isAlreadyFavorite) {
-                newFavoritedIds = favoritedIds.filter(id => id !== property.id);
+                await fetch('http://localhost:3001/favorites', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, propertyId: property.id })
+                });
+                setFavoritedIds(favoritedIds.filter(id => id !== property.id));
+                Alert.alert('Removido', 'Imóvel removido dos favoritos');
             } else {
-                newFavoritedIds = [...favoritedIds, property.id];
+                await fetch('http://localhost:3001/favorites', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, propertyId: property.id })
+                });
+                setFavoritedIds([...favoritedIds, property.id]);
+                Alert.alert('Salvo!', 'Imóvel salvo com sucesso!');
             }
-
-            setFavoritedIds(newFavoritedIds);
-            await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavoritedIds));
-
-            Alert.alert(
-                isAlreadyFavorite ? 'Removido' : 'Salvo!',
-                isAlreadyFavorite
-                    ? 'Imóvel removido dos salvos'
-                    : 'Imóvel salvo com sucesso!'
-            );
-
             return !isAlreadyFavorite;
-
         } catch (error) {
-            console.error('Erro ao salvar imóvel:', error);
-            Alert.alert('Erro', 'Não foi possível salvar o imóvel');
+            console.error('Erro ao salvar/remover favorito:', error);
+            Alert.alert('Erro', 'Não foi possível salvar/remover o imóvel');
             return isAlreadyFavorite;
         }
     };
@@ -73,22 +82,11 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         return favoritedIds.includes(propertyId);
     };
 
-    const clearAllFavorites = async () => {
-        try {
-            await AsyncStorage.removeItem(FAVORITES_KEY);
-            setFavoritedIds([]);
-            Alert.alert('Sucesso', 'Todos os imóveis foram removidos');
-        } catch (error) {
-            console.error('Erro ao limpar favoritos:', error);
-            Alert.alert('Erro', 'Não foi possível limpar os imóveis');
-        }
-    };
 
     const value: FavoritesContextType = {
         favoritedIds,
         toggleFavorite,
         isPropertyFavorite,
-        clearAllFavorites,
         loadFavorites
     };
 

@@ -4,6 +4,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants/colors';
 
 export default function LoginScreen() {
+    console.log('Renderizando LoginScreen');
     const [email, setEmail] = useState('teste@email.com');
     const [password, setPassword] = useState('123');
     const { login, isLoading } = useContext(AuthContext);
@@ -15,11 +16,12 @@ export default function LoginScreen() {
         }
         try {
             await login(email, password);
-        } catch (error) {
+        } catch (error: any) {
             Alert.alert("Erro de Login", error.message);
         }
     };
 
+    console.log('LoginScreen: isLoading', isLoading);
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Habitta Mobile</Text>

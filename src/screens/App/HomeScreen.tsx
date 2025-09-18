@@ -1,10 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants/colors';
 import ScreenBackground from '../../components/common/ScreenBackground';
 import PropertyCard, { Property } from '../../components/common/PropertyCard';
-import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
 import { Ionicons } from '@expo/vector-icons';
 import useLocation from '../../hooks/useLocation';
 import { useFavorites } from '../../hooks/UseFavorites';
@@ -14,16 +13,31 @@ export default function HomeScreen({ navigation }: any) {
     const { location, errorMsg } = useLocation();
     const { toggleFavorite, isPropertyFavorite } = useFavorites();
 
+    const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
+    const [loading, setLoading] = useState(true);
+
     const handleFavoritePress = async (property: Property) => {
-    await toggleFavorite(property);
+        await toggleFavorite(property);
     };
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
     };
-    
-    // vai exibir até 5 imóveis em destaque; podemos decidir o design melhor futuramente
-    const featuredProperties = MOCKED_PROPERTIES.slice(0, 5);
+
+    useEffect(() => {
+        const fetchProperties = async () => {
+            try {
+                const response = await fetch('http://localhost:3001/properties');
+                const data = await response.json();
+                setFeaturedProperties(data.slice(0, 3));
+            } catch (error) {
+                console.error('Erro ao buscar propriedades:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProperties();
+    }, []);
 
     return (
         <ScreenBackground style={styles.container}>
@@ -41,23 +55,29 @@ export default function HomeScreen({ navigation }: any) {
                 <Ionicons name="location-sharp" size={16} color={COLORS.text} />
                 <Text style={styles.locationText}>{location || errorMsg || "Carregando..."}</Text>
             </View>
-            
+
             <Text style={styles.sectionTitle}>Imóveis em Destaque</Text>
 
-            <FlatList
-                data={featuredProperties}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <PropertyCard
-                        property={item}
-                        onPress={() => handlePropertyPress(item)}
-                        onFavoritePress={() => handleFavoritePress(item)}
-                        isFavorite={isPropertyFavorite(item.id)}
-                    />
-                )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.flatlistContent}
-            />
+            {loading ? (
+                <View style={styles.flatlistContent}>
+                    <Text style={styles.sectionTitle}>Carregando imóveis...</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={featuredProperties}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <PropertyCard
+                            property={item}
+                            onPress={() => handlePropertyPress(item)}
+                            onFavoritePress={() => handleFavoritePress(item)}
+                            isFavorite={isPropertyFavorite(item.id)}
+                        />
+                    )}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.flatlistContent}
+                />
+            )}
         </ScreenBackground>
     );
 }

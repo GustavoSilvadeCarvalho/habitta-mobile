@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenBackground from '../../components/common/ScreenBackground';
 import PropertyCard, { Property } from '../../components/common/PropertyCard';
-import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
 import { COLORS } from '../../constants/colors';
 
 import { useFavorites } from '../../hooks/UseFavorites';
@@ -18,37 +17,50 @@ export default function ExploreScreen({ navigation }: any) {
 
     const categories = ['All', 'House', 'Apartment', 'Farm House', 'Shop', 'Villa', 'Condo'];
 
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProperties = async () => {
+            try {
+                const response = await fetch('http://localhost:3001/properties');
+                const data = await response.json();
+                setProperties(data);
+            } catch (error) {
+                console.error('Erro ao buscar propriedades:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProperties();
+    }, []);
+
     const filteredProperties = useMemo(() => {
-        let properties = [...MOCKED_PROPERTIES]; // copiando pra não alterar o array original
-
+        let filtered = [...properties];
         if (selectedCategory !== 'All') {
-            properties = properties.filter(prop => prop.type === selectedCategory);
+            filtered = filtered.filter(prop => prop.type === selectedCategory);
         }
-
         if (searchText) {
             const lowercasedSearchText = searchText.toLowerCase();
-            properties = properties.filter(prop =>
+            filtered = filtered.filter(prop =>
                 (prop.title && prop.title.toLowerCase().includes(lowercasedSearchText)) ||
                 (prop.description && prop.description.toLowerCase().includes(lowercasedSearchText))
             );
         }
-
         if (minPrice !== '') {
             const min = Number(minPrice);
             if (!isNaN(min)) {
-                properties = properties.filter(prop => prop.price >= min);
+                filtered = filtered.filter(prop => prop.price >= min);
             }
         }
-
         if (maxPrice !== '') {
             const max = Number(maxPrice);
             if (!isNaN(max)) {
-                properties = properties.filter(prop => prop.price <= max);
+                filtered = filtered.filter(prop => prop.price <= max);
             }
         }
-
-        return properties;
-    }, [selectedCategory, searchText, minPrice, maxPrice]);
+        return filtered;
+    }, [properties, selectedCategory, searchText, minPrice, maxPrice]);
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
@@ -115,25 +127,31 @@ export default function ExploreScreen({ navigation }: any) {
                 />
             </View>
 
-            <FlatList
-                data={filteredProperties}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <PropertyCard
-                        property={item}
-                        onPress={() => handlePropertyPress(item)}
-                        onFavoritePress={() => handleFavoritePress(item)}
-                        isFavorite={isPropertyFavorite(item.id)}
-                    />
-                )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.flatlistContent}
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>Nenhum imóvel encontrado.</Text>
-                    </View>
-                }
-            />
+            {loading ? (
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>Carregando imóveis...</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={filteredProperties}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <PropertyCard
+                            property={item}
+                            onPress={() => handlePropertyPress(item)}
+                            onFavoritePress={() => handleFavoritePress(item)}
+                            isFavorite={isPropertyFavorite(item.id)}
+                        />
+                    )}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.flatlistContent}
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <Text style={styles.emptyText}>Nenhum imóvel encontrado.</Text>
+                        </View>
+                    }
+                />
+            )}
         </ScreenBackground>
     );
 }
