@@ -5,7 +5,7 @@ import { COLORS } from '../../constants/colors';
 
 export interface Property {
     id: string;
-    image: string;
+    image_url: string;
     title: string;
     price: number;
     bedrooms: number;
@@ -34,7 +34,7 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
     return (
         <TouchableOpacity style={styles.cardContainer} onPress={onPress} activeOpacity={0.8}>
 
-            <Image source={{ uri: property.image }} style={styles.image} />
+            <Image source={{ uri: property.image_url }} style={styles.image} />
 
             <TouchableOpacity style={styles.favoriteIcon} onPress={handleFavorite}>
                 <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color={COLORS.white} />

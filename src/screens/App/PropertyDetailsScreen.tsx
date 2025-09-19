@@ -56,7 +56,7 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
             <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Header com imagem */}
                 <View style={styles.imageContainer}>
-                    <Image source={{ uri: property.image }} style={styles.image} />
+                    <Image source={{ uri: property.image_url }} style={styles.image} />
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => navigation.goBack()}
