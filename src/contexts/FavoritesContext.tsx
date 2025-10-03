@@ -41,7 +41,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     const loadFavorites = async () => {
         if (!userId) return;
         try {
-            const response = await fetch(`http://localhost:3001/favorites/${userId}`);
+            const response = await fetch(`https://habitta-mobile.onrender.com/favorites/${userId}`);
             const data = await response.json();
             setFavoritedIds(data.map((property: any) => property.id));
         } catch (error) {
@@ -54,7 +54,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         const isAlreadyFavorite = favoritedIds.includes(property.id);
         try {
             if (isAlreadyFavorite) {
-                await fetch('http://localhost:3001/favorites', {
+                await fetch('https://habitta-mobile.onrender.com/favorites', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId, propertyId: property.id })
@@ -62,7 +62,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
                 setFavoritedIds(favoritedIds.filter(id => id !== property.id));
                 Alert.alert('Removido', 'Imóvel removido dos favoritos');
             } else {
-                await fetch('http://localhost:3001/favorites', {
+                await fetch('https://habitta-mobile.onrender.com/favorites', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId, propertyId: property.id })

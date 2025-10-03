@@ -2,111 +2,84 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+
+const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
-const Database = require("better-sqlite3");
-const path = require("path");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Banco local
-const dbPath = path.resolve(__dirname, "database.sqlite");
-const db = new Database(dbPath);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
-// Criação das tabelas se não existirem
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS properties (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    description TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
-
-  CREATE TABLE IF NOT EXISTS favorites (
-    user_id INTEGER,
-    property_id INTEGER,
-    PRIMARY KEY (user_id, property_id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (property_id) REFERENCES properties(id)
-  );
-`);
-
-// ---------------- ROTAS ---------------- //
-
-// Buscar favoritos de um usuário
-app.get("/favorites/:userId", (req, res) => {
+app.get("/favorites/:userId", async (req, res) => {
+  const { userId } = req.params;
   try {
-    const stmt = db.prepare(`
-      SELECT p.* FROM favorites f
-      JOIN properties p ON f.property_id = p.id
-      WHERE f.user_id = ?
-    `);
-    const result = stmt.all(req.params.userId);
-    res.json(result);
+    const result = await pool.query(
+      `SELECT p.* FROM favorites f
+        JOIN properties p ON f.property_id = p.id
+        WHERE f.user_id = $1`,
+      [userId]
+    );
+    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: "Erro ao buscar favoritos." });
   }
 });
 
-// Adicionar favorito
-app.post("/favorites", (req, res) => {
+app.post("/favorites", async (req, res) => {
   const { userId, propertyId } = req.body;
   try {
-    const stmt = db.prepare(`
-      INSERT OR IGNORE INTO favorites (user_id, property_id) VALUES (?, ?)
-    `);
-    stmt.run(userId, propertyId);
+    await pool.query(
+      `INSERT INTO favorites (user_id, property_id) VALUES ($1, $2)
+        ON CONFLICT (user_id, property_id) DO NOTHING`,
+      [userId, propertyId]
+    );
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Erro ao adicionar favorito." });
   }
 });
 
-// Remover favorito
-app.delete("/favorites", (req, res) => {
+app.delete("/favorites", async (req, res) => {
   const { userId, propertyId } = req.body;
   try {
-    const stmt = db.prepare(`
-      DELETE FROM favorites WHERE user_id = ? AND property_id = ?
-    `);
-    stmt.run(userId, propertyId);
+    await pool.query(
+      `DELETE FROM favorites WHERE user_id = $1 AND property_id = $2`,
+      [userId, propertyId]
+    );
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Erro ao remover favorito." });
   }
 });
 
-// Listar propriedades
-app.get("/properties", (req, res) => {
+app.get("/properties", async (req, res) => {
   try {
-    const stmt = db.prepare("SELECT * FROM properties ORDER BY created_at DESC");
-    const result = stmt.all();
-    res.json(result);
+    const result = await pool.query(
+      "SELECT * FROM properties ORDER BY created_at DESC"
+    );
+    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: "Erro ao buscar propriedades." });
   }
 });
 
-// Login
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
-    const stmt = db.prepare("SELECT * FROM users WHERE email = ?");
-    const user = stmt.get(email);
-
-    if (!user) {
+    const result = await pool.query(
+      "SELECT id, name, email, password_hash FROM users WHERE email = $1",
+      [email]
+    );
+    if (result.rows.length === 0) {
       return res.status(401).json({ error: "Email ou senha inválidos." });
     }
-
-    const match = bcrypt.compareSync(password, user.password_hash);
+    const user = result.rows[0];
+    const match = await bcrypt.compare(password, user.password_hash);
     if (match) {
       const { password_hash, ...userData } = user;
       res.json(userData);
@@ -118,23 +91,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-// Registrar usuário (extra!)
-app.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
-  try {
-    const hash = await bcrypt.hash(password, 10);
-    const stmt = db.prepare(
-      "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)"
-    );
-    const info = stmt.run(name, email, hash);
-    res.json({ id: info.lastInsertRowid, name, email });
-  } catch (err) {
-    res.status(400).json({ error: "Erro ao registrar usuário. Email pode já estar em uso." });
-  }
-});
-
-// ---------------- SERVER ---------------- //
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`🚀 API rodando em http://localhost:${PORT}`);
+  console.log(`API rodando na porta ${PORT}`);
 });

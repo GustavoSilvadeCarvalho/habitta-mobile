@@ -7,11 +7,9 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "better-sqlite3": "^12.4.1",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
-    "pg": "^8.11.1",
-    "sqlite3": "^5.1.7"
+    "pg": "^8.11.1"
   }
 }
