@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password: string) => {
         console.log('Tentando login com:', email);
+        console.log('Tentando senha com:', password);
         setIsLoading(true);
         try {
             const userData = await authService.login(email, password);

@@ -19,7 +19,7 @@ export default function FavoritesScreen({ navigation }: any) {
                     setLoading(false);
                     return;
                 }
-                const response = await fetch(`http://localhost:3001/properties`);
+                const response = await fetch(`https://habitta-mobile.onrender.com/properties`);
                 const allProperties = await response.json();
                 const favorites = allProperties.filter((property: Property) => favoritedIds.includes(property.id));
                 setSavedProperties(favorites);
