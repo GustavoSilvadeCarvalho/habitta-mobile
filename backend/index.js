@@ -1,3 +1,6 @@
+// ...existing code...
+
+// Endpoint de cadastro de usuário
 app.post("/register", async (req, res) => {
   const { name, email, password, confirmPassword, phone } = req.body;
   if (!name || !email || !password || !confirmPassword || !phone) {
