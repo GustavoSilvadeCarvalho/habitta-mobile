@@ -9,10 +9,9 @@ import useLocation from '../../hooks/useLocation';
 import { useFavorites } from '../../hooks/UseFavorites';
 
 export default function HomeScreen({ navigation }: any) {
-    const { user, logout } = useContext(AuthContext);
+    const { user, logout, setTransitioning } = useContext(AuthContext);
     const { location, errorMsg } = useLocation();
     const { toggleFavorite, isPropertyFavorite } = useFavorites();
-
     const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -34,6 +33,7 @@ export default function HomeScreen({ navigation }: any) {
                 console.error('Erro ao buscar propriedades:', error);
             } finally {
                 setLoading(false);
+                setTransitioning(false);
             }
         };
         fetchProperties();
