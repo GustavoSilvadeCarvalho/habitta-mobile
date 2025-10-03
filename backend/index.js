@@ -1,6 +1,19 @@
-// ...existing code...
+require("dotenv").config();
 
-// Endpoint de cadastro de usuário
+const express = require("express");
+const cors = require("cors");
+
+const { Pool } = require("pg");
+const bcrypt = require("bcrypt");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 app.post("/register", async (req, res) => {
   const { name, email, password, confirmPassword, phone } = req.body;
   if (!name || !email || !password || !confirmPassword || !phone) {
@@ -25,22 +38,6 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Erro ao cadastrar usuário." });
   }
-});
-require("dotenv").config();
-
-const express = require("express");
-const cors = require("cors");
-
-const { Pool } = require("pg");
-const bcrypt = require("bcrypt");
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
 });
 
 app.get("/favorites/:userId", async (req, res) => {
