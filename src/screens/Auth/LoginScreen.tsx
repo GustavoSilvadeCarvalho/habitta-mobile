@@ -5,7 +5,18 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants/colors';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { saveCredentials, getCredentials } from '../../utils/secureStorage';
-export default function LoginScreen() {
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+};
+
+type LoginScreenProps = {
+  navigation: StackNavigationProp<AuthStackParamList, 'Login'>;
+};
+
+export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -90,9 +101,14 @@ export default function LoginScreen() {
         {isLoading ? (
           <ActivityIndicator size="large" color={COLORS.primary} />
         ) : (
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+              <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('Register')}>
+              <Text style={styles.registerButtonText}>Não possui conta? Registre-se aqui</Text>
+            </TouchableOpacity>
+          </>
         )}
       </View>
     </ImageBackground>
@@ -169,5 +185,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
     letterSpacing: 0.5,
+  },
+  registerButton: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  registerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
   },
 });
