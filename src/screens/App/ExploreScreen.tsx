@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Button, Modal, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenBackground from '../../components/common/ScreenBackground';
 import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { COLORS } from '../../constants/colors';
+import {CameraView, useCameraPermissions} from "expo-camera"
 
 import { useFavorites } from '../../hooks/UseFavorites';
 
@@ -70,9 +71,58 @@ export default function ExploreScreen({ navigation }: any) {
         await toggleFavorite(property);
     };
 
+    const [modalIsVisible, setModalIsVisible] = useState(false)
+    const [permission, requestPermission] = useCameraPermissions()
+
+    const qrCodeLock = useRef(false)
+
+    async function handleOpenCamera() {
+        try {
+            const {granted} = await requestPermission()
+
+            if(!granted){
+                return Alert.alert("Camera", "Habilite o uso da câmera.")
+            }
+
+            setModalIsVisible(true)
+            qrCodeLock.current = false
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    // por hora, a leitura do QRCode só devolve uma string; o objetivo final é que redirecione o usuário até a página do imóvel que ele deseja ver
+    function handleQRCodeRead(data: string) {
+        setModalIsVisible(false)
+        Alert.alert("QRCode", data)
+        console.log(data)
+    }
+
     return (
         <ScreenBackground style={styles.container}>
             <Text style={styles.pageTitle}>Explore Imóveis</Text>
+
+            <View style={styles.qrCodeContainer}>
+                <Button title="Ler QRCODE" onPress={handleOpenCamera}/>
+
+                <Modal visible={modalIsVisible} style={{flex: 1}}>
+                    <CameraView 
+                    style={{flex: 1}} 
+                    facing="back"
+                    onBarcodeScanned={({data}) => {
+                        if(data && !qrCodeLock.current){
+                            qrCodeLock.current = true
+                            setTimeout(() => handleQRCodeRead(data), 500)
+                        }
+                    }}
+                    />
+
+                    <View style={styles.footer}>
+                        <Button title="Cancelar" onPress={() => setModalIsVisible(false)}/>
+                    </View>
+                </Modal>
+
+            </View>
 
             <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
@@ -244,4 +294,13 @@ const styles = StyleSheet.create({
         color: COLORS.text,
         fontSize: 18,
     },
+    footer: {
+        position: "absolute",
+        bottom: 32,
+        left: 32,
+        right: 32,
+    },
+    qrCodeContainer: {
+        //TODO: decidir a estilização e a posição no layout da tela.
+    }
 });
