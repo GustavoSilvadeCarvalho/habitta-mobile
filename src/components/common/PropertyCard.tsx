@@ -43,7 +43,7 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
             <View style={styles.contentContainer}>
                 <View style={styles.titlePriceRow}>
                     <Text style={styles.title}>{property.title}</Text>
-                    <Text style={styles.price}>$ {property.price}</Text>
+                    <Text style={styles.price}>R$ {property.price}</Text>
                 </View>
 
                 <View style={styles.featuresRow}>
@@ -59,7 +59,7 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
                         <Ionicons name="car-sport-outline" size={16} color={COLORS.gray} />
                         <Text style={styles.featureText}>{property.garages}</Text>
                     </View>
-                    <Text style={styles.pricePeriod}>Per Week</Text>
+                    <Text style={styles.pricePeriod}>Por Semana</Text>
                 </View>
 
                 <View style={styles.addressRow}>
