@@ -12,10 +12,13 @@ export default function ExploreScreen({ navigation }: any) {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
+    const [numBedrooms, setNumBedrooms] = useState('');
+    const [numBathrooms, setNumBathrooms] = useState('');
+    const [numGarages, setNumGarages] = useState('');
 
     const { favoritedIds, toggleFavorite, isPropertyFavorite } = useFavorites();
 
-    const categories = ['All', 'House', 'Apartment', 'Farm House', 'Shop', 'Villa', 'Condo'];
+    const categories = ['Todos', 'Casa', 'Apartamento', 'Casa de Campo'];
 
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
@@ -44,7 +47,8 @@ export default function ExploreScreen({ navigation }: any) {
             const lowercasedSearchText = searchText.toLowerCase();
             filtered = filtered.filter(prop =>
                 (prop.title && prop.title.toLowerCase().includes(lowercasedSearchText)) ||
-                (prop.description && prop.description.toLowerCase().includes(lowercasedSearchText))
+                (prop.description && prop.description.toLowerCase().includes(lowercasedSearchText)) ||
+                (prop.address && prop.address.toLowerCase().includes(lowercasedSearchText))
             );
         }
         if (minPrice !== '') {
@@ -59,8 +63,26 @@ export default function ExploreScreen({ navigation }: any) {
                 filtered = filtered.filter(prop => prop.price <= max);
             }
         }
+        if (numBedrooms !== '') {
+            const bedrooms = Number(numBedrooms);
+            if (!isNaN(bedrooms) && bedrooms > 0) {
+                filtered = filtered.filter(prop => prop.bedrooms && prop.bedrooms >= bedrooms);
+            }
+        }
+        if (numBathrooms !== '') {
+            const bathrooms = Number(numBathrooms);
+            if (!isNaN(bathrooms) && bathrooms > 0) {
+                filtered = filtered.filter(prop => prop.bathrooms && prop.bathrooms >= bathrooms);
+            }
+        }
+        if (numGarages !== '') {
+            const garages = Number(numGarages);
+            if (!isNaN(garages) && garages > 0) {
+                filtered = filtered.filter(prop => prop.garages && prop.garages >= garages);
+            }
+        }
         return filtered;
-    }, [properties, selectedCategory, searchText, minPrice, maxPrice]);
+    }, [properties, selectedCategory, searchText, minPrice, maxPrice, numBedrooms, numBathrooms, numGarages]);
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
@@ -102,6 +124,35 @@ export default function ExploreScreen({ navigation }: any) {
                     keyboardType="numeric"
                     onChangeText={setMaxPrice}
                     value={maxPrice}
+                />
+            </View>
+
+            <View style={styles.numberContainer}>
+                <TextInput
+                    style={[styles.numberInput, { maxWidth: '30%' }]}
+                    placeholder="Quartos"
+                    placeholderTextColor={COLORS.gray}
+                    keyboardType="numeric"
+                    onChangeText={setNumBedrooms}
+                    value={numBedrooms}
+                />
+
+                <TextInput
+                    style={[styles.numberInput, { maxWidth: '30%' }]}
+                    placeholder="Banheiros"
+                    placeholderTextColor={COLORS.gray}
+                    keyboardType="numeric"
+                    onChangeText={setNumBathrooms}
+                    value={numBathrooms}
+                />
+
+                <TextInput
+                    style={[styles.numberInput, { maxWidth: '30%' }]}
+                    placeholder="Vagas"
+                    placeholderTextColor={COLORS.gray}
+                    keyboardType="numeric"
+                    onChangeText={setNumGarages}
+                    value={numGarages}
                 />
             </View>
 
@@ -172,6 +223,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: COLORS.white,
+        border: '1px solid #efefef',
         height: 50,
         borderRadius: 12,
         paddingHorizontal: 15,
@@ -194,17 +246,38 @@ const styles = StyleSheet.create({
     },
     priceInput: {
         flex: 1,
-        height: 40,
-        paddingHorizontal: 15,
         borderRadius: 12,
         backgroundColor: COLORS.white,
         fontSize: 16,
         color: COLORS.text,
+        width: 'auto',
+        paddingLeft: 10,
+        maxWidth: '182px',
+        height : 50,
+        border: '1px solid #efefef',
     },
     priceSeparator: {
         marginHorizontal: 10,
         color: COLORS.text,
         fontSize: 18,
+    },
+    numberContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 50,
+        borderRadius: 12,
+        marginBottom: 10,
+        justifyContent: 'space-between',
+    },
+    numberInput: {
+        flex: 1,
+        height: '100%',
+        fontSize: 16,
+        color: COLORS.text,
+        backgroundColor: COLORS.white,
+        border : '1px solid #efefef',
+        paddingLeft: 10,
+        borderRadius: 12,
     },
     categoryContainer: {
         marginTop: 10,

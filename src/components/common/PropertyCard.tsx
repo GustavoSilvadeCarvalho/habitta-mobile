@@ -59,7 +59,6 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
                         <Ionicons name="car-sport-outline" size={16} color={COLORS.gray} />
                         <Text style={styles.featureText}>{property.garages}</Text>
                     </View>
-                    <Text style={styles.pricePeriod}>Por Semana</Text>
                 </View>
 
                 <View style={styles.addressRow}>
