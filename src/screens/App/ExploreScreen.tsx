@@ -9,7 +9,7 @@ import { useFavorites } from '../../hooks/UseFavorites';
 
 export default function ExploreScreen({ navigation }: any) {
     const [searchText, setSearchText] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [selectedCategory, setSelectedCategory] = useState('Todos');
     const [minPrice, setMinPrice] = useState('');
     const [maxPrice, setMaxPrice] = useState('');
     const [numBedrooms, setNumBedrooms] = useState('');
@@ -40,7 +40,7 @@ export default function ExploreScreen({ navigation }: any) {
 
     const filteredProperties = useMemo(() => {
         let filtered = [...properties];
-        if (selectedCategory !== 'All') {
+        if (selectedCategory !== 'Todos') {
             filtered = filtered.filter(prop => prop.type === selectedCategory);
         }
         if (searchText) {

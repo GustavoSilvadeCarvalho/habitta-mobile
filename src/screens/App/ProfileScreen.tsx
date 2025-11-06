@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 // Assumindo que COLORS e ScreenBackground estão disponíveis
 import { COLORS } from '../../constants/colors'; 
 import ScreenBackground from '../../components/common/ScreenBackground'; 
+import { Ionicons } from '@expo/vector-icons';
 
 // --- Configuração ---
 interface ImovelData {
@@ -39,6 +41,7 @@ export default function ProfileScreen() {
     const [showCadastroForm, setShowCadastroForm] = useState(false);
     const [loading, setLoading] = useState(false);
     const [imovelData, setImovelData] = useState<ImovelData>(INITIAL_IMOVEL_DATA);
+    const { user, logout, setTransitioning } = useContext(AuthContext);
     const [erros, setErros] = useState<Partial<Record<keyof ImovelData, string>>>({}); // Novo estado para erros
 
     // Função para validar os dados do formulário
@@ -173,19 +176,50 @@ export default function ProfileScreen() {
         <ScreenBackground style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
                 <Text style={styles.title}>Meu Perfil</Text>
-                
+                <View style={styles.profileContent}>
+                        <View style={styles.profileImage}></View>
+                        <Text style={styles.profileTextName}>{user?.name}</Text>
+                        <Text style={styles.profileText}>{user?.email}</Text>
+                        <View style={styles.editContent}>
+                            <View style={styles.editContentLeft}>
+                                <Ionicons name="person-outline" size={33} color={COLORS.text}/>
+                                <Text style={styles.editText}>Informações Pessoais</Text>
+                            </View>
+                            <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} />
+                        </View>
+                        <View style={styles.editContent}>
+                            <View style={styles.editContentLeft}>
+                                <Ionicons name="shield-checkmark-outline" size={33} color={COLORS.text}/>
+                                <Text style={styles.editText}>Email & Senha</Text>
+                            </View>
+                            <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} />
+                        </View>
+                        <View style={styles.editContent}>
+                            <View style={styles.editContentLeft}>
+                                <Ionicons name="notifications-outline" size={33} color={COLORS.text}/>
+                                <Text style={styles.editText}>Notificações</Text>
+                            </View>
+                            <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} />
+                        </View>
+                        <View style={styles.editContent}>
+                            <View style={styles.editContentLeft}>
+                                <Ionicons name="help-outline" size={33} color={COLORS.text}/>
+                                <Text style={styles.editText}>Ajuda</Text>
+                            </View>
+                            <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} />
+                        </View>
+                </View>
                 {!showCadastroForm ? (
-                    <View style={styles.profileContent}>
-                        <Text style={styles.welcomeText}>Bem-vindo ao seu perfil!</Text>
-                        
+                    <View>
                         <TouchableOpacity 
                             style={styles.cadastroButton}
                             onPress={() => setShowCadastroForm(true)}
                             disabled={loading} // Mantenha disabled para prevenir clique duplo
-                        >
-                            <Text style={styles.cadastroButtonText}>Cadastrar Imóvel</Text>
+                        >     
                         </TouchableOpacity>
+                        <Text style={styles.cadastroButtonText}>Cadastrar Imóvel</Text>
                     </View>
+                    
                 ) : (
                     <View style={styles.cadastroForm}>
                         <Text style={styles.formTitle}>Cadastrar Novo Imóvel</Text>
@@ -346,6 +380,8 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
     // ... estilos existentes
     container: {
+        display: 'flex',
+        flexDirection: 'column',
         flex: 1,
         backgroundColor: COLORS.background,
     },
@@ -361,14 +397,46 @@ const styles = StyleSheet.create({
         color: COLORS.primary,
     },
     profileContent: {
+        display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        flex: 1,
+        gap: 10,
     },
-    welcomeText: {
+    profileImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: COLORS.secondary,
+    },
+    profileText: {
         fontSize: 16,
-        marginBottom: 30,
-        textAlign: 'center',
+        textAlign: 'left',
+        color: COLORS.text,
+    },
+    profileTextName: {
+        fontSize: 20,
+        textAlign: 'left',
+        color: COLORS.text,
+    },
+    editContent: {
+        marginTop: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 5,
+        border: `1px solid ${COLORS.gray}`,
+        padding: 10,
+        paddingVertical: 15,
+        width: '90%',
+        borderRadius: 13,
+    },
+    editContentLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    editText: {
+        fontSize: 16,
         color: COLORS.text,
     },
     cadastroButton: {
