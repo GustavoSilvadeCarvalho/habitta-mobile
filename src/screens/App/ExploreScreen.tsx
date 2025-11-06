@@ -92,11 +92,34 @@ export default function ExploreScreen({ navigation }: any) {
     }
 
     // por hora, a leitura do QRCode só devolve uma string; o objetivo final é que redirecione o usuário até a página do imóvel que ele deseja ver
-    function handleQRCodeRead(data: string) {
+    async function handleQRCodeRead(data: string) {
         setModalIsVisible(false)
-        Alert.alert("QRCode", data)
-        console.log(data)
+        console.log("QR Code Lido (Dado): ", data);
+
+        const propertyId = data;
+
+    // NOTA: se o QR Code retornar uma URL, preciso inserir:
+    // const match = data.match(/\/property\/(\w+)$/);
+    // const propertyId = match ? match[1] : null;
+
+    if(!propertyId) {
+        return Alert.alert("Erro: ", "O identificador do Imóvel não foi encontrado.");
     }
+
+    try {
+        const response = await fetch('https://habitta-mobile.onrender.com/properties/${propertyId}')
+
+        if (!response.ok) {
+            throw new Error("Imóvel não encontrado. Status: ${response.status}");
+        }
+        const propertyData: Property = await response.json();
+        navigation.navigate('PropertyDetails', {propert: propertyData });
+
+    } catch (error) {
+        console.error('Erro ao buscar imóvel do QR Code:', error);
+        Alert.alert("Erro", "Não foi possível carregar os detalhes do imóvel.");
+    }
+}
 
     return (
         <ScreenBackground style={styles.container}>
