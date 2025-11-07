@@ -93,19 +93,17 @@ export default function ExploreScreen({ navigation }: any) {
     }
 
     // REDIRECIONAMENTO POR LEITURA DE QRcode:
-
     // coleta a string fornecida pelo QRcode
     async function handleQRCodeRead(data: string) {
         setModalIsVisible(false)
         console.log("QR Code Lido (Dado): ", data);
-
         const propertyId = data;
 
     if(!propertyId) {
         return Alert.alert("Erro: ", "O identificador do Imóvel não foi encontrado.");
     }
 
-    //redirecionando o usuário aqui
+    //redirecionando o usuário
     try {
         const response = await fetch(`https://habitta-mobile.onrender.com/properties/${propertyId}`);
 
@@ -113,7 +111,6 @@ export default function ExploreScreen({ navigation }: any) {
             throw new Error(`Imóvel não encontrado. Status: ${response.status}`);
         }
         const propertyData: Property = await response.json();
-
         navigation.navigate('PropertyDetails', {property: propertyData });
 
     } catch (error) {
