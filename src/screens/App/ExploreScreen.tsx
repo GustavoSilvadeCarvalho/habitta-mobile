@@ -65,6 +65,7 @@ export default function ExploreScreen({ navigation }: any) {
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
+        console.log(property)
     };
 
     const handleFavoritePress = async (property: Property) => {
@@ -91,29 +92,29 @@ export default function ExploreScreen({ navigation }: any) {
         }
     }
 
-    // por hora, a leitura do QRCode só devolve uma string; o objetivo final é que redirecione o usuário até a página do imóvel que ele deseja ver
+    // REDIRECIONAMENTO POR LEITURA DE QRcode:
+
+    // coleta a string fornecida pelo QRcode
     async function handleQRCodeRead(data: string) {
         setModalIsVisible(false)
         console.log("QR Code Lido (Dado): ", data);
 
         const propertyId = data;
 
-    // NOTA: se o QR Code retornar uma URL, preciso inserir:
-    // const match = data.match(/\/property\/(\w+)$/);
-    // const propertyId = match ? match[1] : null;
-
     if(!propertyId) {
         return Alert.alert("Erro: ", "O identificador do Imóvel não foi encontrado.");
     }
 
+    //redirecionando o usuário aqui
     try {
-        const response = await fetch('https://habitta-mobile.onrender.com/properties/${propertyId}')
+        const response = await fetch(`https://habitta-mobile.onrender.com/properties/${propertyId}`);
 
         if (!response.ok) {
-            throw new Error("Imóvel não encontrado. Status: ${response.status}");
+            throw new Error(`Imóvel não encontrado. Status: ${response.status}`);
         }
         const propertyData: Property = await response.json();
-        navigation.navigate('PropertyDetails', {propert: propertyData });
+
+        navigation.navigate('PropertyDetails', {property: propertyData });
 
     } catch (error) {
         console.error('Erro ao buscar imóvel do QR Code:', error);
@@ -124,7 +125,8 @@ export default function ExploreScreen({ navigation }: any) {
     return (
         <ScreenBackground style={styles.container}>
             <Text style={styles.pageTitle}>Explore Imóveis</Text>
-
+            
+            {/* botão que abre a câmera + leitura de QRcode: */}
             <View style={styles.qrCodeContainer}>
                 <Button title="Ler QRCODE" onPress={handleOpenCamera}/>
 
