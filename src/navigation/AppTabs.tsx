@@ -9,6 +9,7 @@ import ExploreScreen from '../screens/App/ExploreScreen';
 import FavoritesScreen from '../screens/App/FavoritesScreen';
 import ProfileScreen from '../screens/App/ProfileScreen';
 import { COLORS } from '../constants/colors';
+import RegisterpropertyScreen from '../screens/App/RegisterpropertyScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,6 +47,8 @@ export default function AppTabs() {
                         iconName = focused ? 'heart' : 'heart-outline';
                     } else if (route.name === 'Perfil') {
                         iconName = focused ? 'person-circle' : 'person-circle-outline';
+                    }else if (route.name === 'Cadastro de Imoveis') {
+                        iconName = focused ? 'create' : 'create-outline';
                     }
 
                     return <Ionicons name={iconName} size={size * 1.1} color={color} />;
@@ -56,6 +59,7 @@ export default function AppTabs() {
             <Tab.Screen name="Explorar" component={ExploreScreen}/>
             <Tab.Screen name="Salvos" component={FavoritesScreen} />
             <Tab.Screen name="Perfil" component={ProfileScreen} />
+            <Tab.Screen name="Cadastro de Imoveis" component={RegisterpropertyScreen} />
         </Tab.Navigator>
     );
 }
