@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Button, Modal, Alert} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenBackground from '../../components/common/ScreenBackground';
 import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { COLORS } from '../../constants/colors';
+import {CameraView, useCameraPermissions} from "expo-camera"
 
 import { useFavorites } from '../../hooks/UseFavorites';
 
@@ -86,15 +87,86 @@ export default function ExploreScreen({ navigation }: any) {
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
+        console.log(property)
     };
 
     const handleFavoritePress = async (property: Property) => {
         await toggleFavorite(property);
     };
 
+    const [modalIsVisible, setModalIsVisible] = useState(false)
+    const [permission, requestPermission] = useCameraPermissions()
+
+    const qrCodeLock = useRef(false)
+
+    async function handleOpenCamera() {
+        try {
+            const {granted} = await requestPermission()
+
+            if(!granted){
+                return Alert.alert("Camera", "Habilite o uso da câmera.")
+            }
+
+            setModalIsVisible(true)
+            qrCodeLock.current = false
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    // REDIRECIONAMENTO POR LEITURA DE QRcode:
+    // coleta a string fornecida pelo QRcode
+    async function handleQRCodeRead(data: string) {
+        setModalIsVisible(false)
+        console.log("QR Code Lido (Dado): ", data);
+        const propertyId = data;
+
+    if(!propertyId) {
+        return Alert.alert("Erro: ", "O identificador do Imóvel não foi encontrado.");
+    }
+
+    //redirecionando o usuário
+    try {
+        const response = await fetch(`https://habitta-mobile.onrender.com/properties/${propertyId}`);
+
+        if (!response.ok) {
+            throw new Error(`Imóvel não encontrado. Status: ${response.status}`);
+        }
+        const propertyData: Property = await response.json();
+        navigation.navigate('PropertyDetails', {property: propertyData });
+
+    } catch (error) {
+        console.error('Erro ao buscar imóvel do QR Code:', error);
+        Alert.alert("Erro", "Não foi possível carregar os detalhes do imóvel.");
+    }
+}
+
     return (
         <ScreenBackground style={styles.container}>
             <Text style={styles.pageTitle}>Explore Imóveis</Text>
+            
+            {/* botão que abre a câmera + leitura de QRcode: */}
+            <View style={styles.qrCodeContainer}>
+                <Button title="Ler QRCODE" onPress={handleOpenCamera}/>
+
+                <Modal visible={modalIsVisible} style={{flex: 1}}>
+                    <CameraView 
+                    style={{flex: 1}} 
+                    facing="back"
+                    onBarcodeScanned={({data}) => {
+                        if(data && !qrCodeLock.current){
+                            qrCodeLock.current = true
+                            setTimeout(() => handleQRCodeRead(data), 500)
+                        }
+                    }}
+                    />
+
+                    <View style={styles.footer}>
+                        <Button title="Cancelar" onPress={() => setModalIsVisible(false)}/>
+                    </View>
+                </Modal>
+
+            </View>
 
             <View style={styles.searchContainer}>
                 <Ionicons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
@@ -317,4 +389,13 @@ const styles = StyleSheet.create({
         color: COLORS.text,
         fontSize: 18,
     },
+    footer: {
+        position: "absolute",
+        bottom: 32,
+        left: 32,
+        right: 32,
+    },
+    qrCodeContainer: {
+        //TODO: decidir a estilização e a posição no layout da tela.
+    }
 });
