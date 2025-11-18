@@ -6,6 +6,10 @@ import { BlurView } from 'expo-blur';
 
 import HomeScreen from '../screens/App/HomeScreen';
 import ExploreScreen from '../screens/App/ExploreScreen';
+import SalesScreen from '../screens/App/SalesScreen';
+import RentScreen from '../screens/App/RentScreen';
+import ExploreChoiceScreen from '../screens/App/ExploreChoiceScreen';
+import { createStackNavigator } from '@react-navigation/stack';
 import FavoritesScreen from '../screens/App/FavoritesScreen';
 import ProfileScreen from '../screens/App/ProfileScreen';
 import { COLORS } from '../constants/colors';
@@ -56,10 +60,23 @@ export default function AppTabs() {
             })}
         >
             <Tab.Screen name="Início" component={HomeScreen} />
-            <Tab.Screen name="Explorar" component={ExploreScreen}/>
+            <Tab.Screen name="Explorar" component={ExploreStackScreen} />
             <Tab.Screen name="Salvos" component={FavoritesScreen} />
             <Tab.Screen name="Perfil" component={ProfileScreen} />
             <Tab.Screen name="Cadastro de Imoveis" component={RegisterpropertyScreen} />
         </Tab.Navigator>
+    );
+}
+
+const Stack = createStackNavigator();
+
+function ExploreStackScreen() {
+    return (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="ExploreChoice" component={ExploreChoiceScreen} />
+            <Stack.Screen name="ExploreMain" component={ExploreScreen} />
+            <Stack.Screen name="Sales" component={SalesScreen} />
+            <Stack.Screen name="Rent" component={RentScreen} />
+        </Stack.Navigator>
     );
 }

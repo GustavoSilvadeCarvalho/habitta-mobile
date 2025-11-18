@@ -5,7 +5,7 @@ import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { COLORS } from '../../constants/colors';
 import { useFavorites } from '../../hooks/UseFavorites';
 
-export default function RentScreen({ navigation }: any) {
+export default function SalesScreen({ navigation }: any) {
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -26,16 +26,19 @@ export default function RentScreen({ navigation }: any) {
         fetchProperties();
     }, []);
 
-    const isRentProperty = (prop: any) => {
+    // Heurística para detectar se a propriedade é para venda (tenta vários nomes de campo comuns)
+    const isSaleProperty = (prop: any) => {
         if (!prop) return false;
-        if (prop.transaction === 'rent' || prop.transactionType === 'rent' || prop.purpose === 'rent') return true;
-        if (prop.isForRent === true) return true;
-        if (prop.listing_type === 'rent' || prop.listingType === 'rent') return true;
-        if (prop.operation === 'rent' || prop.offerType === 'rent') return true;
+        if (prop.transaction === 'sale' || prop.transactionType === 'sale' || prop.purpose === 'sale') return true;
+        if (prop.isForSale === true) return true;
+        if (prop.listing_type === 'sale' || prop.listingType === 'sale') return true;
+        // Alguns backends usam "operation" ou "offerType"
+        if (prop.operation === 'sale' || prop.offerType === 'sale') return true;
+        // Caso não haja campo explícito, podemos assumir que propriedades com price acima de 0 são vendáveis — mas não filtrar por isso aqui
         return false;
     };
 
-    const rentProperties = properties.filter(isRentProperty);
+    const saleProperties = properties.filter(isSaleProperty);
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });
@@ -47,7 +50,7 @@ export default function RentScreen({ navigation }: any) {
 
     return (
         <ScreenBackground style={styles.container}>
-            <Text style={styles.pageTitle}>Imóveis para Aluguel</Text>
+            <Text style={styles.pageTitle}>Imóveis à Venda</Text>
 
             {loading ? (
                 <View style={styles.emptyContainer}>
@@ -55,7 +58,7 @@ export default function RentScreen({ navigation }: any) {
                 </View>
             ) : (
                 <FlatList
-                    data={rentProperties}
+                    data={saleProperties}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <PropertyCard
@@ -69,7 +72,7 @@ export default function RentScreen({ navigation }: any) {
                     contentContainerStyle={styles.flatlistContent}
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
-                            <Text style={styles.emptyText}>Nenhum imóvel para aluguel encontrado.</Text>
+                            <Text style={styles.emptyText}>Nenhum imóvel de venda encontrado.</Text>
                         </View>
                     }
                 />
