@@ -77,12 +77,12 @@ export default function FavoritesScreen({ navigation }: any) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 65,
+        paddingTop: 20,
         paddingHorizontal: 16,
         backgroundColor: COLORS.background,
     },
     pageTitle: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 20,
         color: COLORS.text,

@@ -15,6 +15,9 @@ export default function HomeScreen({ navigation }: any) {
     const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // Implementação do primeiro nome 
+    const firstName = user?.name ? user.name.split(' ')[0] : 'Usuário';
+
     const handleFavoritePress = async (property: Property) => {
         await toggleFavorite(property);
     };
@@ -43,8 +46,10 @@ export default function HomeScreen({ navigation }: any) {
         <ScreenBackground style={styles.container}>
             <View style={styles.header}>
                 <View>
-                    <Text style={styles.welcomeText}>Bem-vindo(a),</Text>
-                    <Text style={styles.userName}>{user?.name}!</Text>
+                    <Text style={styles.welcomeText}>
+                        Bem-vindo(a), 
+                        <Text style={styles.userName}> {firstName}!</Text>
+                    </Text>
                 </View>
                 <TouchableOpacity onPress={logout} style={styles.logoutButton}>
                     <Text style={styles.logoutButtonText}>Sair</Text>
@@ -85,21 +90,21 @@ export default function HomeScreen({ navigation }: any) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 65,
+        paddingTop: 20,
         paddingHorizontal: 16,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 10, 
     },
     welcomeText: {
         fontSize: 18,
         color: COLORS.text,
     },
     userName: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
         color: COLORS.text,
     },
@@ -115,7 +120,8 @@ const styles = StyleSheet.create({
     locationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 8,
+        // 🚀 Reduzido de 8 para 4
+        paddingVertical: 4,
     },
     locationText: {
         fontSize: 16,
@@ -125,7 +131,8 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        marginTop: 20,
+        // 🚀 Reduzido de 20 para 10
+        marginTop: 10, 
         marginBottom: 10,
         color: COLORS.text,
     },
