@@ -4,6 +4,8 @@ import ScreenBackground from '../../components/common/ScreenBackground';
 import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { COLORS } from '../../constants/colors';
 import { useFavorites } from '../../hooks/UseFavorites';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { firebaseApp } from '../../firebaseConfig';
 
 export default function SalesScreen({ navigation }: any) {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -14,11 +16,28 @@ export default function SalesScreen({ navigation }: any) {
     useEffect(() => {
         const fetchProperties = async () => {
             try {
-                const response = await fetch('https://habitta-mobile.onrender.com/properties');
-                const data = await response.json();
+                const db = getFirestore(firebaseApp);
+                const propertiesCollection = collection(db, 'properties');
+                const querySnapshot = await getDocs(propertiesCollection);
+                const data = querySnapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    image_url: typeof doc.data().photos === 'string' ? doc.data().photos : '', // Garante que seja uma string
+                    title: doc.data().title || '',
+                    price: doc.data().price || 0,
+                    bedrooms: doc.data().bedrooms || 0,
+                    bathrooms: doc.data().bathrooms || 0,
+                    garages: doc.data().garages || 0,
+                    address: doc.data().address || '',
+                    description: doc.data().description || '',
+                    type: doc.data().type || '',
+                    area: doc.data().area || 0,
+                    location: doc.data().location || '',
+                    transaction: doc.data().transactionType || '',
+                }));
+                console.log('Propriedades buscadas do Firebase:', data);
                 setProperties(data);
             } catch (error) {
-                console.error('Erro ao buscar propriedades:', error);
+                console.error('Erro ao buscar propriedades do Firebase:', error);
             } finally {
                 setLoading(false);
             }
@@ -26,19 +45,9 @@ export default function SalesScreen({ navigation }: any) {
         fetchProperties();
     }, []);
 
-    // Heurística para detectar se a propriedade é para venda (tenta vários nomes de campo comuns)
-    const isSaleProperty = (prop: any) => {
-        if (!prop) return false;
-        if (prop.transaction === 'sale' || prop.transactionType === 'sale' || prop.purpose === 'sale') return true;
-        if (prop.isForSale === true) return true;
-        if (prop.listing_type === 'sale' || prop.listingType === 'sale') return true;
-        // Alguns backends usam "operation" ou "offerType"
-        if (prop.operation === 'sale' || prop.offerType === 'sale') return true;
-        // Caso não haja campo explícito, podemos assumir que propriedades com price acima de 0 são vendáveis — mas não filtrar por isso aqui
-        return false;
-    };
+    const saleProperties = properties
 
-    const saleProperties = properties.filter(isSaleProperty);
+    console.log('Propriedades filtradas para venda1:', saleProperties);
 
     const handlePropertyPress = (property: Property) => {
         navigation.navigate('PropertyDetails', { property });

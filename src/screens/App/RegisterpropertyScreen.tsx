@@ -1,34 +1,37 @@
-
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, ScrollView, Alert, Image, Platform } from 'react-native';
 import ScreenBackground from '../../components/common/ScreenBackground';
 import { COLORS } from '../../constants/colors';
-
+import { storage, firestore } from '../../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, addDoc } from 'firebase/firestore';
+import * as ImagePicker from 'expo-image-picker';
+import { AuthContext } from '../../contexts/AuthContext';
 
 interface ImovelData {
-    titulo: string;
-    endereco: string;
-    tipo: string;
-    quartos: string;
-    banheiros: string;
-    garagens: string;
+    title: string;
+    address: string;
+    type: string;
+    bedrooms: string;
+    bathrooms: string;
+    garages: string;
     area: string;
-    valor: string;
-    descricao: string;
-    informacoesAdicionais: string;
+    price: string;
+    description: string;
+    additionalInformation: string;
 }
 
 const INITIAL_IMOVEL_DATA: ImovelData = {
-    titulo: '',
-    endereco: '',
-    tipo: '',
-    quartos: '',
-    banheiros: '',
-    garagens: '',
+    title: '',
+    address: '',
+    type: '',
+    bedrooms: '',
+    bathrooms: '',
+    garages: '',
     area: '',
-    valor: '',
-    descricao: '',
-    informacoesAdicionais: ''
+    price: '',
+    description: '',
+    additionalInformation: ''
 };
 
 export default function RegisterpropertyScreen({ navigation }: any) {
@@ -36,26 +39,28 @@ export default function RegisterpropertyScreen({ navigation }: any) {
     const [erros, setErros] = useState<Partial<Record<keyof ImovelData, string>>>({});
     const [loading, setLoading] = useState(false);
 
+    const { user } = useContext(AuthContext);
+
     const validarFormulario = (): boolean => {
         let novosErros: Partial<Record<keyof ImovelData, string>> = {};
         let valido = true;
 
-        if (!imovelData.titulo.trim()) {
-            novosErros.titulo = 'O título é obrigatório.';
+        if (!imovelData.title.trim()) {
+            novosErros.title = 'O título é obrigatório.';
             valido = false;
         }
-        if (!imovelData.endereco.trim()) {
-            novosErros.endereco = 'O endereço é obrigatório.';
+        if (!imovelData.address.trim()) {
+            novosErros.address = 'O endereço é obrigatório.';
             valido = false;
         }
-        if (!imovelData.tipo.trim()) {
-            novosErros.tipo = 'O tipo é obrigatório.';
+        if (!imovelData.type.trim()) {
+            novosErros.type = 'O tipo é obrigatório.';
             valido = false;
         }
 
-        const valorNumerico = Number(imovelData.valor.replace(',', '.'));
-        if (imovelData.valor && isNaN(valorNumerico)) {
-            novosErros.valor = 'Informe um valor válido.';
+        const valorNumerico = Number(imovelData.price.replace(',', '.'));
+        if (imovelData.price && isNaN(valorNumerico)) {
+            novosErros.price = 'Informe um valor válido.';
             valido = false;
         }
 
@@ -74,11 +79,11 @@ export default function RegisterpropertyScreen({ navigation }: any) {
         
         return {
             ...imovelData,
-            quartos: parseNum(imovelData.quartos),
-            banheiros: parseNum(imovelData.banheiros),
-            garagens: parseNum(imovelData.garagens),
+            bedrooms: parseNum(imovelData.bedrooms),
+            bathrooms: parseNum(imovelData.bathrooms),
+            garages: parseNum(imovelData.garages),
             area: parseFloatNum(imovelData.area),
-            valor: parseFloatNum(imovelData.valor),
+            price: parseFloatNum(imovelData.price),
         };
     };
 
@@ -113,9 +118,8 @@ export default function RegisterpropertyScreen({ navigation }: any) {
                 quality: 0.7,
             });
 
-            if (!result.cancelled) {
-                // @ts-ignore
-                const uri = result.uri || result.assets?.[0]?.uri;
+            if (!result.canceled) {
+                const uri = result.assets?.[0]?.uri;
                 if (uri) setPhotos(prev => [...prev, uri]);
             }
         } catch (err) {
@@ -126,6 +130,19 @@ export default function RegisterpropertyScreen({ navigation }: any) {
 
     const removePhoto = (index: number) => {
         setPhotos(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const uploadImageToFirebase = async (uri: string, path: string): Promise<string> => {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const storageRef = ref(storage, path);
+        await uploadBytes(storageRef, blob);
+        return await getDownloadURL(storageRef);
+    };
+
+    const savePropertyToFirestore = async (data: any) => {
+        const docRef = await addDoc(collection(firestore, 'properties'), data);
+        return docRef.id;
     };
 
     const enviarParaAPI = async (dados: any): Promise<boolean> => {
@@ -146,18 +163,27 @@ export default function RegisterpropertyScreen({ navigation }: any) {
         if (!validarFormulario()) return;
         setLoading(true);
         try {
-            const dados = formatarDadosParaEnvio();
-            const payload = { ...dados, transactionType, photos };
-            const ok = await enviarParaAPI(payload);
-            if (ok) {
-                Alert.alert('Sucesso', 'Imóvel cadastrado com sucesso!', [{ text: 'OK', onPress: () => navigation.goBack() }]);
-                setImovelData(INITIAL_IMOVEL_DATA);
-                setErros({});
-                setTransactionType('');
-                setPhotos([]);
-            } else {
-                throw new Error('Erro no envio');
+            if (!user) {
+                Alert.alert('Erro', 'Usuário não autenticado. Faça login novamente.');
+                setLoading(false);
+                return;
             }
+
+            const userEmail = user.email;
+
+            const dados = formatarDadosParaEnvio();
+            const uploadedPhotos = await Promise.all(
+                photos.map((photo, index) => uploadImageToFirebase(photo, `properties/${imovelData.title}/photo_${index + 1}`))
+            );
+
+            const payload = { ...dados, transactionType, photos: uploadedPhotos, userEmail };
+            const propertyId = await savePropertyToFirestore(payload);
+
+            Alert.alert('Sucesso', `Imóvel cadastrado com sucesso! ID: ${propertyId}`, [{ text: 'OK', onPress: () => navigation.goBack() }]);
+            setImovelData(INITIAL_IMOVEL_DATA);
+            setErros({});
+            setTransactionType('');
+            setPhotos([]);
         } catch (err) {
             console.error(err);
             Alert.alert('Erro', 'Não foi possível cadastrar o imóvel.');
@@ -195,35 +221,32 @@ export default function RegisterpropertyScreen({ navigation }: any) {
             <ScrollView keyboardShouldPersistTaps="handled">
                 <Text style={styles.formTitle}>Cadastrar Novo Imóvel</Text>
                 <TextInput
-                    style={[styles.input, erros.titulo && styles.inputError]}
+                    style={[styles.input, erros.title && styles.inputError]}
                     placeholder="Título do imóvel *"
-                    value={imovelData.titulo}
-                    onChangeText={text => updateImovelData('titulo', text)}
+                    value={imovelData.title}
+                    onChangeText={text => updateImovelData('title', text)}
                     editable={!loading}
                     returnKeyType="next"
                 />
-                {erros.titulo ? <Text style={styles.errorText}>{erros.titulo}</Text> : null}
-
+                {erros.title ? <Text style={styles.errorText}>{erros.title}</Text> : null}
                 <TextInput
-                    style={[styles.input, erros.endereco && styles.inputError]}
+                    style={[styles.input, erros.address && styles.inputError]}
                     placeholder="Endereço completo *"
-                    value={imovelData.endereco}
-                    onChangeText={text => updateImovelData('endereco', text)}
+                    value={imovelData.address}
+                    onChangeText={text => updateImovelData('address', text)}
                     editable={!loading}
                     returnKeyType="next"
                 />
-                {erros.endereco ? <Text style={styles.errorText}>{erros.endereco}</Text> : null}
-
+                {erros.address ? <Text style={styles.errorText}>{erros.address}</Text> : null}
                 <TextInput
-                    style={[styles.input, erros.tipo && styles.inputError]}
+                    style={[styles.input, erros.type && styles.inputError]}
                     placeholder="Tipo (Casa, Apartamento, etc.) *"
-                    value={imovelData.tipo}
-                    onChangeText={text => updateImovelData('tipo', text)}
+                    value={imovelData.type}
+                    onChangeText={text => updateImovelData('type', text)}
                     editable={!loading}
                     returnKeyType="next"
                 />
-                {erros.tipo ? <Text style={styles.errorText}>{erros.tipo}</Text> : null}
-
+                {erros.type ? <Text style={styles.errorText}>{erros.type}</Text> : null}
                 <View style={styles.typeSelectorRow}>
                     <Text style={styles.typeLabel}>Tipo de anúncio:</Text>
                     <View style={styles.typeButtons}>
@@ -244,36 +267,36 @@ export default function RegisterpropertyScreen({ navigation }: any) {
 
                 <View style={styles.rowInputs}>
                     <TextInput
-                        style={[styles.input, styles.halfInput, erros.quartos && styles.inputError]}
+                        style={[styles.input, styles.halfInput, erros.bedrooms && styles.inputError]}
                         placeholder="Quartos"
                         keyboardType="number-pad"
-                        value={imovelData.quartos}
-                        onChangeText={text => updateImovelData('quartos', text)}
+                        value={imovelData.bedrooms}
+                        onChangeText={text => updateImovelData('bedrooms', text)}
                         editable={!loading}
                         returnKeyType="next"
                     />
                     <TextInput
-                        style={[styles.input, styles.halfInput, erros.banheiros && styles.inputError]}
+                        style={[styles.input, styles.halfInput, erros.bathrooms && styles.inputError]}
                         placeholder="Banheiros"
                         keyboardType="number-pad"
-                        value={imovelData.banheiros}
-                        onChangeText={text => updateImovelData('banheiros', text)}
+                        value={imovelData.bathrooms}
+                        onChangeText={text => updateImovelData('bathrooms', text)}
                         editable={!loading}
                         returnKeyType="next"
                     />
                 </View>
                 <View style={styles.rowInputs}>
-                    <View style={styles.halfInputContainer}>{erros.quartos ? <Text style={styles.errorText}>{erros.quartos}</Text> : null}</View>
-                    <View style={styles.halfInputContainer}>{erros.banheiros ? <Text style={styles.errorText}>{erros.banheiros}</Text> : null}</View>
+                    <View style={styles.halfInputContainer}>{erros.bedrooms ? <Text style={styles.errorText}>{erros.bedrooms}</Text> : null}</View>
+                    <View style={styles.halfInputContainer}>{erros.bathrooms ? <Text style={styles.errorText}>{erros.bathrooms}</Text> : null}</View>
                 </View>
 
                 <View style={styles.rowInputs}>
                     <TextInput
-                        style={[styles.input, styles.halfInput, erros.garagens && styles.inputError]}
+                        style={[styles.input, styles.halfInput, erros.garages && styles.inputError]}
                         placeholder="Garagens"
                         keyboardType="number-pad"
-                        value={imovelData.garagens}
-                        onChangeText={text => updateImovelData('garagens', text)}
+                        value={imovelData.garages}
+                        onChangeText={text => updateImovelData('garages', text)}
                         editable={!loading}
                         returnKeyType="next"
                     />
@@ -288,45 +311,42 @@ export default function RegisterpropertyScreen({ navigation }: any) {
                     />
                 </View>
                 <View style={styles.rowInputs}>
-                    <View style={styles.halfInputContainer}>{erros.garagens ? <Text style={styles.errorText}>{erros.garagens}</Text> : null}</View>
+                    <View style={styles.halfInputContainer}>{erros.garages ? <Text style={styles.errorText}>{erros.garages}</Text> : null}</View>
                     <View style={styles.halfInputContainer}>{erros.area ? <Text style={styles.errorText}>{erros.area}</Text> : null}</View>
                 </View>
 
                 <TextInput
-                    style={[styles.input, erros.valor && styles.inputError]}
+                    style={[styles.input, erros.price && styles.inputError]}
                     placeholder="Valor (R$)"
                     keyboardType="decimal-pad"
-                    value={imovelData.valor}
-                    onChangeText={text => updateImovelData('valor', text)}
+                    value={imovelData.price}
+                    onChangeText={text => updateImovelData('price', text)}
                     editable={!loading}
                     returnKeyType="next"
                 />
-                {erros.valor ? <Text style={styles.errorText}>{erros.valor}</Text> : null}
-
+                {erros.price ? <Text style={styles.errorText}>{erros.price}</Text> : null}
                 <TextInput
-                    style={[styles.input, styles.textArea, erros.descricao && styles.inputError]}
+                    style={[styles.input, styles.textArea, erros.description && styles.inputError]}
                     placeholder="Descrição do imóvel"
                     multiline
                     numberOfLines={4}
-                    value={imovelData.descricao}
-                    onChangeText={text => updateImovelData('descricao', text)}
+                    value={imovelData.description}
+                    onChangeText={text => updateImovelData('description', text)}
                     editable={!loading}
                     returnKeyType="default"
                 />
-                {erros.descricao ? <Text style={styles.errorText}>{erros.descricao}</Text> : null}
-
+                {erros.description ? <Text style={styles.errorText}>{erros.description}</Text> : null}
                 <TextInput
-                    style={[styles.input, styles.textArea, erros.informacoesAdicionais && styles.inputError]}
+                    style={[styles.input, styles.textArea, erros.additionalInformation && styles.inputError]}
                     placeholder="Informações adicionais (mobília, condomínio, IPTU, etc.)"
                     multiline
                     numberOfLines={4}
-                    value={imovelData.informacoesAdicionais}
-                    onChangeText={text => updateImovelData('informacoesAdicionais', text)}
+                    value={imovelData.additionalInformation}
+                    onChangeText={text => updateImovelData('additionalInformation', text)}
                     editable={!loading}
                     returnKeyType="done"
                 />
-                {erros.informacoesAdicionais ? <Text style={styles.errorText}>{erros.informacoesAdicionais}</Text> : null}
-
+                {erros.additionalInformation ? <Text style={styles.errorText}>{erros.additionalInformation}</Text> : null}
                 <View style={styles.photosSection}>
                     <Text style={styles.photosTitle}>Fotos (máx. 8)</Text>
                     <View style={styles.photosRow}>
@@ -376,6 +396,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingTop: 20,
+        paddingBottom: 100,
         paddingHorizontal: 16,
         backgroundColor: COLORS.background,
     },
