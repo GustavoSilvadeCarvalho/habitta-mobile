@@ -66,9 +66,16 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
       source={{ uri: 'https://images.unsplash.com/photo-1613977257365-aaae5a9817ff?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}
       style={styles.background}
       resizeMode="cover"
+      accessibilityLabel="Tela de login com fundo de um sobrado com piscina"
     >
       <View style={styles.container}>
-        <Image source={require('../../assets/logo-sem-fundo.png')} style={styles.logo} resizeMode="contain" />
+        <Image 
+          source={require('../../assets/logo-sem-fundo.png')} 
+          style={styles.logo} 
+          resizeMode="contain" 
+          accessibilityLabel="Logo da aplicação"
+          accessibilityRole="image"
+        />
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Email</Text>
           <TextInput
@@ -79,6 +86,9 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             keyboardType="email-address"
             autoCapitalize="none"
             placeholderTextColor="#888"
+            accessibilityLabel="Campo de email"
+            accessibilityHint="Digite seu endereço de email"
+            accessibilityRole="text"
           />
         </View>
         <View style={styles.inputGroup}>
@@ -91,21 +101,47 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
               placeholderTextColor="#888"
+              accessibilityLabel="Campo de senha"
+              accessibilityHint="Digite sua senha"
+              accessibilityRole="text"
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
+            <TouchableOpacity 
+              onPress={() => setShowPassword(!showPassword)} 
+              style={styles.eyeButton}
+              accessibilityLabel={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              accessibilityHint={showPassword ? "A senha ficará oculta" : "A senha ficará visível"}
+              accessibilityRole="button"
+            >
               <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
             </TouchableOpacity>
           </View>
         </View>
         <View style={{ height: 24 }} />
         {isLoading ? (
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator 
+            size="large" 
+            color={COLORS.primary} 
+            accessibilityLabel="Carregando"
+            accessibilityRole="progressbar"
+          />
         ) : (
           <>
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <TouchableOpacity 
+              style={styles.loginButton} 
+              onPress={handleLogin}
+              accessibilityLabel="Botão de login"
+              accessibilityHint="Toque para fazer login na aplicação"
+              accessibilityRole="button"
+            >
               <Text style={styles.loginButtonText}>Login</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.registerButton} onPress={() => navigation.navigate('Register')}>
+            <TouchableOpacity 
+              style={styles.registerButton} 
+              onPress={() => navigation.navigate('Register')}
+              accessibilityLabel="Ir para tela de registro"
+              accessibilityHint="Toque para criar uma nova conta"
+              accessibilityRole="button"
+            >
               <Text style={styles.registerButtonText}>Não possui conta? Registre-se aqui</Text>
             </TouchableOpacity>
           </>
@@ -126,7 +162,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     padding: 20,
-    paddingTop: 100,
+    paddingTop: 1,
     backgroundColor: 'rgba(30,30,30,0.6)',
     margin: 0,
   },
@@ -134,7 +170,7 @@ const styles = StyleSheet.create({
     width: 370,
     height: 270,
     alignSelf: 'center',
-    marginBottom: 24,
+    marginBottom: 0,
   },
   inputGroup: {
     marginBottom: 16,
@@ -142,7 +178,7 @@ const styles = StyleSheet.create({
   label: {
     color: '#fff',
     fontWeight: 'bold',
-    marginBottom: 6,
+    marginBottom: 1,
     marginLeft: 2,
     fontSize: 15,
   },
@@ -176,9 +212,9 @@ const styles = StyleSheet.create({
   loginButton: {
     backgroundColor: COLORS.primary,
     borderRadius: 8,
-    paddingVertical: 14,
+    paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 1,
   },
   loginButtonText: {
     color: '#fff',

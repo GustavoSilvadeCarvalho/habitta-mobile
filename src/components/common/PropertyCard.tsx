@@ -1,5 +1,14 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
+import { 
+    View, 
+    Text, 
+    Image, 
+    StyleSheet, 
+    TouchableOpacity, 
+    GestureResponderEvent,
+    Dimensions,
+    useWindowDimensions 
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
 
@@ -24,6 +33,25 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: PropertyCardProps) => {
+    const { width: windowWidth } = useWindowDimensions();
+    
+    // Definição de breakpoints para diferentes tamanhos de tela
+    const isSmallScreen = windowWidth < 375; // iPhone SE e menores
+    const isMediumScreen = windowWidth < 414; // iPhone 11 Pro e similares
+    
+    // Função para determinar o tamanho da fonte baseado na largura da tela
+    const getResponsiveFontSize = () => {
+        if (isSmallScreen) {
+            return 14; // Tamanho menor para telas muito pequenas
+        } else if (isMediumScreen) {
+            return 16; // Tamanho médio para telas médias
+        } else {
+            return 18; // Tamanho padrão para telas maiores
+        }
+    };
+
+    const titlePriceFontSize = getResponsiveFontSize();
+
     const handleFavorite = (event: GestureResponderEvent) => {
         event.stopPropagation();
         if (onFavoritePress) {
@@ -42,8 +70,8 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
 
             <View style={styles.contentContainer}>
                 <View style={styles.titlePriceRow}>
-                    <Text style={styles.title}>{property.title}</Text>
-                    <Text style={styles.price}>R$ {property.price}</Text>
+                    <Text style={[styles.title, { fontSize: titlePriceFontSize }]}>{property.title}</Text>
+                    <Text style={[styles.price, { fontSize: titlePriceFontSize }]}>R$ {property.price}</Text>
                 </View>
 
                 <View style={styles.featuresRow}>
@@ -106,15 +134,18 @@ const styles = StyleSheet.create({
     titlePriceRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start', // Alinha os itens no topo
+        marginBottom: 8,
     },
     title: {
-        fontSize: 18,
+        // fontSize removido do StyleSheet e aplicado dinamicamente
         fontWeight: 'bold',
         color: COLORS.text,
+        flex: 1, // Permite que o texto quebre linha se necessário
+        marginRight: 10,
     },
     price: {
-        fontSize: 18,
+        // fontSize removido do StyleSheet e aplicado dinamicamente
         fontWeight: 'bold',
         color: COLORS.primary,
     },
