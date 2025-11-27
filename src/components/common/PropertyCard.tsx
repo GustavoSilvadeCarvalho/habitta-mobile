@@ -1,22 +1,10 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
+import { View, Text, Image, TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
 import { cardStyles } from '../Styles/CardStyle';
-
-export interface Property {
-    id: string;
-    image_url: string;
-    title: string;
-    price: number;
-    bedrooms: number;
-    bathrooms: number;
-    garages: number;
-    address: string;
-    description: string;
-    type: string;
-    transactionType?: string;
-}
+import { Property } from '../../interface/IProperty';
+    
 
 interface PropertyCardProps {
     property: Property;
