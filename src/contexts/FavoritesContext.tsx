@@ -23,7 +23,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
     const [favoritedIds, setFavoritedIds] = useState<string[]>([]);
     const userId = user?.id || null;
 
-  useEffect(() => {
+    useEffect(() => {
         import('../contexts/AuthContext').then(({ AuthContext }) => {
             // Precisa ser usado dentro de um componente React
             // Alternativamente, pode ser passado como prop
