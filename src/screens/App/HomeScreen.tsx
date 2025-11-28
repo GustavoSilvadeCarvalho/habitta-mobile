@@ -3,9 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { AuthContext } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants/colors';
 import ScreenBackground from '../../components/common/ScreenBackground';
-import PropertyCard from '../../components/common/PropertyCard';
-import { Property } from '../../interface/IProperty';
-import { MOCKED_PROPERTIES } from '../../data/mocks/properties';
+import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { Ionicons } from '@expo/vector-icons';
 import useLocation from '../../hooks/useLocation';
 import { useFavorites } from '../../hooks/UseFavorites';
@@ -29,7 +27,7 @@ export default function HomeScreen({ navigation }: any) {
     };
 
     useEffect(() => {
-       /* const fetchProperties = async () => {
+        const fetchProperties = async () => {
             try {
                 const response = await fetch('https://habitta-mobile.onrender.com/properties');
                 const data = await response.json();
@@ -40,10 +38,8 @@ export default function HomeScreen({ navigation }: any) {
                 setLoading(false);
                 setTransitioning(false);
             }
-        };*/
-        setFeaturedProperties(MOCKED_PROPERTIES);
-        setLoading(false);
-        //fetchProperties();
+        };
+        fetchProperties();
     }, []);
 
     return (
@@ -141,6 +137,6 @@ const styles = StyleSheet.create({
         color: COLORS.text,
     },
     flatlistContent: {
-        paddingBottom: 120,
+        paddingBottom: 20,
     },
 });
