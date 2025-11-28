@@ -80,7 +80,7 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
                     {/* Título e preço */}
                     <View style={styles.titleRow}>
                         <Text style={styles.title}>{property.title}</Text>
-                        <Text style={styles.price}>$ {property.price}/semana</Text>
+                        <Text style={styles.price}>$ {property.price}</Text>
                     </View>
 
                     {/* Endereço */}

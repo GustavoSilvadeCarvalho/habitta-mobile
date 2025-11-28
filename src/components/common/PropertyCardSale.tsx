@@ -13,7 +13,7 @@ interface PropertyCardProps {
     isFavorite?: boolean;
 }
 
-const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: PropertyCardProps) => {
+const PropertyCardSale = ({ property, onPress, onFavoritePress, isFavorite }: PropertyCardProps) => {
     const handleFavorite = (event: GestureResponderEvent) => {
         event.stopPropagation();
         if (onFavoritePress) {
@@ -49,7 +49,6 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
                         <Ionicons name="car-sport-outline" size={16} color={COLORS.gray} />
                         <Text style={cardStyles.featureText}>{property.garages}</Text>
                     </View>
-                    <Text style={cardStyles.pricePeriod}>Per Week</Text>
                 </View>
 
                 <View style={cardStyles.addressRow}>
@@ -63,5 +62,5 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
     );
 };
 
-export default PropertyCard;
+export default PropertyCardSale;
 

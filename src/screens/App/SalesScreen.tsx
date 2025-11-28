@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import ScreenBackground from '../../components/common/ScreenBackground';
-import PropertyCard, { Property } from '../../components/common/PropertyCard';
 import { COLORS } from '../../constants/colors';
 import { useFavorites } from '../../hooks/UseFavorites';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { firebaseApp } from '../../firebaseConfig';
+import { Property } from '../../interface/IProperty';
+import PropertyCardSale from '../../components/common/PropertyCardSale';
 
 export default function SalesScreen({ navigation }: any) {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -70,7 +71,7 @@ export default function SalesScreen({ navigation }: any) {
                     data={saleProperties}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
-                        <PropertyCard
+                        <PropertyCardSale
                             property={item}
                             onPress={() => handlePropertyPress(item)}
                             onFavoritePress={() => handleFavoritePress(item)}
