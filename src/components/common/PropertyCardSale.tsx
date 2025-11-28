@@ -4,7 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
 import { cardStyles } from '../Styles/CardStyle';
 import { Property } from '../../interface/IProperty';
-    
+import Carousel from 'react-native-reanimated-carousel';
+
 
 interface PropertyCardProps {
     property: Property;
@@ -13,26 +14,7 @@ interface PropertyCardProps {
     isFavorite?: boolean;
 }
 
-const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: PropertyCardProps) => {
-    const { width: windowWidth } = useWindowDimensions();
-    
-    // Definição de breakpoints para diferentes tamanhos de tela
-    const isSmallScreen = windowWidth < 375; // iPhone SE e menores
-    const isMediumScreen = windowWidth < 414; // iPhone 11 Pro e similares
-    
-    // Função para determinar o tamanho da fonte baseado na largura da tela
-    const getResponsiveFontSize = () => {
-        if (isSmallScreen) {
-            return 14; // Tamanho menor para telas muito pequenas
-        } else if (isMediumScreen) {
-            return 16; // Tamanho médio para telas médias
-        } else {
-            return 18; // Tamanho padrão para telas maiores
-        }
-    };
-
-    const titlePriceFontSize = getResponsiveFontSize();
-
+const PropertyCardSale = ({ property, onPress, onFavoritePress, isFavorite }: PropertyCardProps) => {
     const handleFavorite = (event: GestureResponderEvent) => {
         event.stopPropagation();
         if (onFavoritePress) {
@@ -68,7 +50,6 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
                         <Ionicons name="car-sport-outline" size={16} color={COLORS.gray} />
                         <Text style={cardStyles.featureText}>{property.garages}</Text>
                     </View>
-                    <Text style={cardStyles.pricePeriod}>Per Week</Text>
                 </View>
 
                 <View style={cardStyles.addressRow}>
@@ -77,9 +58,11 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
                 </View>
 
                 <Text style={cardStyles.description}>{property.description}</Text>
+                
             </View>
         </TouchableOpacity>
     );
 };
 
-export default PropertyCard;
+export default PropertyCardSale;
+

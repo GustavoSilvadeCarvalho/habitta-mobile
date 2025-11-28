@@ -2,7 +2,8 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Button, Modal, Alert, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenBackground from '../../components/common/ScreenBackground';
-import PropertyCard, { Property } from '../../components/common/PropertyCard';
+import PropertyCard from '../../components/common/PropertyCard';
+import { Property } from '../../interface/IProperty';
 import { COLORS } from '../../constants/colors';
 import { CameraView, useCameraPermissions } from "expo-camera"
 import { useFavorites } from '../../hooks/UseFavorites';
@@ -306,6 +307,7 @@ export default function ExploreScreen({ navigation }: any) {
                             onFavoritePress={() => handleFavoritePress(item)}
                             isFavorite={isPropertyFavorite(item.id)}
                         />
+                        
                     )}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={styles.flatlistContent}
@@ -331,6 +333,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 20,
+        marginTop: 20,
     },
     pageTitle: {
         fontSize: 20,
@@ -460,7 +463,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     flatlistContent: {
-        paddingBottom: 20,
+        paddingBottom: 150,
     },
     emptyContainer: {
         flex: 1,
@@ -477,5 +480,6 @@ const styles = StyleSheet.create({
         bottom: 32,
         left: 32,
         right: 32,
+        
     },
 });
