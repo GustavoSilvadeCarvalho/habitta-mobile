@@ -60,41 +60,100 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
     };
 
     return (
-        <TouchableOpacity style={styles.cardContainer} onPress={onPress} activeOpacity={0.8}>
+        <TouchableOpacity 
+            style={styles.cardContainer} 
+            onPress={onPress} 
+            activeOpacity={0.8}
+            // MUDANÇA: Adicionado label de acessibilidade para o card completo
+            accessibilityLabel={`Imóvel: ${property.title}. Preço: R$ ${property.price}. ${property.bedrooms} quartos, ${property.bathrooms} banheiros, ${property.garages} vagas. Localização: ${property.address}`}
+            accessibilityRole="button"
+            accessibilityHint="Toque para ver detalhes do imóvel"
+        >
 
-            <Image source={{ uri: property.image_url }} style={styles.image} />
+            <Image 
+                source={{ uri: property.image_url }} 
+                style={styles.image} 
+                // MUDANÇA: Adicionado label de acessibilidade para a imagem
+                accessibilityLabel={`Imagem do imóvel ${property.title}`}
+                accessibilityRole="image"
+            />
 
-            <TouchableOpacity style={styles.favoriteIcon} onPress={handleFavorite}>
+            <TouchableOpacity 
+                style={styles.favoriteIcon} 
+                onPress={handleFavorite}
+                // MUDANÇA: Adicionado label de acessibilidade para o botão de favorito
+                accessibilityLabel={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                accessibilityRole="button"
+                accessibilityHint="Toque para favoritar ou desfavoritar este imóvel"
+            >
                 <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color={COLORS.white} />
             </TouchableOpacity>
 
             <View style={styles.contentContainer}>
                 <View style={styles.titlePriceRow}>
-                    <Text style={[styles.title, { fontSize: titlePriceFontSize }]}>{property.title}</Text>
-                    <Text style={[styles.price, { fontSize: titlePriceFontSize }]}>R$ {property.price}</Text>
+                    <Text 
+                        style={[styles.title, { fontSize: titlePriceFontSize }]}
+                        // MUDANÇA: Adicionado label de acessibilidade para o título
+                        accessibilityRole="text"
+                    >
+                        {property.title}
+                    </Text>
+                    <Text 
+                        style={[styles.price, { fontSize: titlePriceFontSize }]}
+                        // MUDANÇA: Adicionado label de acessibilidade para o preço
+                        accessibilityRole="text"
+                    >
+                        R$ {property.price}
+                    </Text>
                 </View>
 
                 <View style={styles.featuresRow}>
-                    <View style={styles.featureItem}>
+                    <View 
+                        style={styles.featureItem}
+                        // MUDANÇA: Adicionado label de acessibilidade para quartos
+                        accessibilityLabel={`${property.bedrooms} quartos`}
+                        accessibilityRole="text"
+                    >
                         <Ionicons name="bed-outline" size={16} color={COLORS.gray} />
                         <Text style={styles.featureText}>{property.bedrooms}</Text>
                     </View>
-                    <View style={styles.featureItem}>
+                    <View 
+                        style={styles.featureItem}
+                        // MUDANÇA: Adicionado label de acessibilidade para banheiros
+                        accessibilityLabel={`${property.bathrooms} banheiros`}
+                        accessibilityRole="text"
+                    >
                         <Ionicons name="water-outline" size={16} color={COLORS.gray} />
                         <Text style={styles.featureText}>{property.bathrooms}</Text>
                     </View>
-                    <View style={styles.featureItem}>
+                    <View 
+                        style={styles.featureItem}
+                        // MUDANÇA: Adicionado label de acessibilidade para vagas
+                        accessibilityLabel={`${property.garages} vagas de garagem`}
+                        accessibilityRole="text"
+                    >
                         <Ionicons name="car-sport-outline" size={16} color={COLORS.gray} />
                         <Text style={styles.featureText}>{property.garages}</Text>
                     </View>
                 </View>
 
-                <View style={styles.addressRow}>
+                <View 
+                    style={styles.addressRow}
+                    // MUDANÇA: Adicionado label de acessibilidade para endereço
+                    accessibilityLabel={`Endereço: ${property.address}`}
+                    accessibilityRole="text"
+                >
                     <Ionicons name="location-outline" size={16} color={COLORS.gray} />
                     <Text style={styles.addressText}>{property.address}</Text>
                 </View>
 
-                <Text style={styles.description}>{property.description}</Text>
+                <Text 
+                    style={styles.description}
+                    // MUDANÇA: Adicionado label de acessibilidade para descrição
+                    accessibilityRole="text"
+                >
+                    {property.description}
+                </Text>
             </View>
         </TouchableOpacity>
     );
