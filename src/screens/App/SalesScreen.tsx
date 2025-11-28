@@ -22,7 +22,8 @@ export default function SalesScreen({ navigation }: any) {
                 const querySnapshot = await getDocs(propertiesCollection);
                 const data = querySnapshot.docs.map((doc) => ({
                     id: doc.id,
-                    image_url: typeof doc.data().photos === 'string' ? doc.data().photos : '', // Garante que seja uma string
+                    image_url: doc.data().photos[0].toString()||'', // Garante que seja uma string
+                    image_Array: doc.data().photos || [],
                     title: doc.data().title || '',
                     price: doc.data().price || 0,
                     bedrooms: doc.data().bedrooms || 0,

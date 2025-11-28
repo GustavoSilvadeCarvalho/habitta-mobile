@@ -33,15 +33,18 @@ export const cardStyles = StyleSheet.create({
     titlePriceRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start', // Alinha os itens no topo
+        marginBottom: 8,
     },
     title: {
-        fontSize: 18,
+        // fontSize removido do StyleSheet e aplicado dinamicamente
         fontWeight: 'bold',
         color: COLORS.text,
+        flex: 1, // Permite que o texto quebre linha se necessário
+        marginRight: 10,
     },
     price: {
-        fontSize: 18,
+        // fontSize removido do StyleSheet e aplicado dinamicamente
         fontWeight: 'bold',
         color: COLORS.primary,
     },

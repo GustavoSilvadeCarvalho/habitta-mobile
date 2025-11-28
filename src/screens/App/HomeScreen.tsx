@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import { AuthContext } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants/colors';
 import ScreenBackground from '../../components/common/ScreenBackground';
-import PropertyCard, { Property } from '../../components/common/PropertyCard';
+import PropertyCard from '../../components/common/PropertyCard';
+import { Property } from '../../interface/IProperty';
 import { Ionicons } from '@expo/vector-icons';
 import useLocation from '../../hooks/useLocation';
 import { useFavorites } from '../../hooks/UseFavorites';
@@ -130,6 +131,6 @@ const styles = StyleSheet.create({
         color: COLORS.text,
     },
     flatlistContent: {
-        paddingBottom: 20,
+        paddingBottom: 120,
     },
 });

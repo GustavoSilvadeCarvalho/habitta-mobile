@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
 import { cardStyles } from '../Styles/CardStyle';
 import { Property } from '../../interface/IProperty';
+import Carousel from 'react-native-reanimated-carousel';
 
 
 interface PropertyCardProps {
@@ -57,6 +58,7 @@ const PropertyCardSale = ({ property, onPress, onFavoritePress, isFavorite }: Pr
                 </View>
 
                 <Text style={cardStyles.description}>{property.description}</Text>
+                
             </View>
         </TouchableOpacity>
     );

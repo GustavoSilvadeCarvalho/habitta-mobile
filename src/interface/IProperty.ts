@@ -1,6 +1,8 @@
 export interface Property {
     id: string;
     image_url: string;
+    image_Array?: string[];
+    photos?: string[];
     title: string;
     price: number;
     bedrooms: number;
@@ -10,4 +12,6 @@ export interface Property {
     description: string;
     type: string;
     transactionType?: string;
+    area?: number;
+    location?: string;
 }

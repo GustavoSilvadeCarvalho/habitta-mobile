@@ -3,11 +3,11 @@ import {
     View,
     Text,
     Image,
-    StyleSheet,
     ScrollView,
     TouchableOpacity,
     Dimensions,
-    Alert
+    Alert,
+    Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
@@ -27,6 +27,8 @@ interface PropertyDetailsScreenProps {
 export default function PropertyDetailsScreen({ route, navigation }: PropertyDetailsScreenProps) {
     const { property } = route.params;
     const [isFavorite, setIsFavorite] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     const handleFavoritePress = () => {
         setIsFavorite(!isFavorite);
@@ -50,6 +52,16 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
             'Funcionalidade de agendamento será implementada em breve!',
             [{ text: 'OK' }]
         );
+    };
+
+    const openImageModal = (image: string) => {
+        setSelectedImage(image);
+        setModalVisible(true);
+    };
+
+    const closeImageModal = () => {
+        setModalVisible(false);
+        setSelectedImage(null);
     };
 
     return (
@@ -114,6 +126,33 @@ export default function PropertyDetailsScreen({ route, navigation }: PropertyDet
                         <Text style={styles.descriptionTitle}>Descrição</Text>
                         <Text style={styles.description}>{property.description}</Text>
                     </View>
+
+                    {property.image_Array && property.image_Array.length > 0 && (
+                        <View style={{ marginTop: 16 }}>
+                            <Text style={{ color: COLORS.gray, marginBottom: 8 }}>Galeria</Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                {property.image_Array.map((img, idx) => (
+                                    <TouchableOpacity key={idx} onPress={() => openImageModal(img)}>
+                                        <Image
+                                            source={{ uri: img }}
+                                            style={{ width: 100, height: 80, borderRadius: 8, marginRight: 8 }}
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        </View>
+                    )}
+
+                    <Modal visible={modalVisible} transparent onRequestClose={closeImageModal}>
+                        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
+                            <TouchableOpacity onPress={closeImageModal} style={{ position: 'absolute', top: 20, right: 20, zIndex: 10 }}>
+                                <Text style={{ color: '#fff', fontSize: 16 }}>Fechar</Text>
+                            </TouchableOpacity>
+                            {selectedImage && (
+                                <Image source={{ uri: selectedImage }} style={{ width: '90%', height: '75%', resizeMode: 'contain' }} />
+                            )}
+                        </View>
+                    </Modal>
 
                     {/* Informações adicionais */}
                     <View style={styles.additionalInfoContainer}>
