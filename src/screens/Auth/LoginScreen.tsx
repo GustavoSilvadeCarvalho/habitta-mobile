@@ -1,21 +1,31 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, Alert, ImageBackground, TouchableOpacity, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../../contexts/AuthContext';
 import { COLORS } from '../../constants/colors';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { saveCredentials, getCredentials } from '../../utils/secureStorage'; // 🔹 arquivo com as funções acima
+import { saveCredentials, getCredentials } from '../../utils/secureStorage';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-export default function LoginScreen() {
+type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+};
+
+type LoginScreenProps = {
+  navigation: StackNavigationProp<AuthStackParamList, 'Login'>;
+};
+
+export default function LoginScreen({ navigation }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useContext(AuthContext);
 
-  // 🔹 Checar se tem credenciais salvas na primeira vez que abrir
   useEffect(() => {
     (async () => {
       const creds = await getCredentials();
       if (creds) {
-        // Se encontrou, pergunta se quer usar biometria
         const hasHardware = await LocalAuthentication.hasHardwareAsync();
         const isEnrolled = await LocalAuthentication.isEnrolledAsync();
 
@@ -44,7 +54,7 @@ export default function LoginScreen() {
     }
     try {
       await login(email, password);
-      await saveCredentials(email, password); // 🔹 Salva para o próximo login
+      await saveCredentials(email, password);
       Alert.alert("Sucesso", "Login realizado e credenciais salvas!");
     } catch (error: any) {
       Alert.alert("Erro de Login", error.message);
@@ -52,34 +62,174 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Habitta Mobile</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      {isLoading ? (
-        <ActivityIndicator size="large" color={COLORS.primary} />
-      ) : (
-        <Button title="Entrar" onPress={handleLogin} />
-      )}
-    </View>
+    <ImageBackground
+      source={{ uri: 'https://images.unsplash.com/photo-1613977257365-aaae5a9817ff?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}
+      style={styles.background}
+      resizeMode="cover"
+      accessibilityLabel="Tela de login com fundo de um sobrado com piscina"
+    >
+      <View style={styles.container}>
+        <Image 
+          source={require('../../assets/logo-sem-fundo.png')} 
+          style={styles.logo} 
+          resizeMode="contain" 
+          accessibilityLabel="Logo da aplicação"
+          accessibilityRole="image"
+        />
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Email Address"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor="#888"
+            accessibilityLabel="Campo de email"
+            accessibilityHint="Digite seu endereço de email"
+            accessibilityRole="text"
+          />
+        </View>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Password</Text>
+          <View style={styles.passwordWrapper}>
+            <TextInput
+              style={[styles.input, styles.passwordInput]}
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              placeholderTextColor="#888"
+              accessibilityLabel="Campo de senha"
+              accessibilityHint="Digite sua senha"
+              accessibilityRole="text"
+            />
+            <TouchableOpacity 
+              onPress={() => setShowPassword(!showPassword)} 
+              style={styles.eyeButton}
+              accessibilityLabel={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              accessibilityHint={showPassword ? "A senha ficará oculta" : "A senha ficará visível"}
+              accessibilityRole="button"
+            >
+              <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color="#888" />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{ height: 24 }} />
+        {isLoading ? (
+          <ActivityIndicator 
+            size="large" 
+            color={COLORS.primary} 
+            accessibilityLabel="Carregando"
+            accessibilityRole="progressbar"
+          />
+        ) : (
+          <>
+            <TouchableOpacity 
+              style={styles.loginButton} 
+              onPress={handleLogin}
+              accessibilityLabel="Botão de login"
+              accessibilityHint="Toque para fazer login na aplicação"
+              accessibilityRole="button"
+            >
+              <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.registerButton} 
+              onPress={() => navigation.navigate('Register')}
+              accessibilityLabel="Ir para tela de registro"
+              accessibilityHint="Toque para criar uma nova conta"
+              accessibilityRole="button"
+            >
+              <Text style={styles.registerButtonText}>Não possui conta? Registre-se aqui</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: COLORS.background },
-  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
-  input: { height: 40, borderColor: COLORS.gray, borderWidth: 1, marginBottom: 12, paddingHorizontal: 10, borderRadius: 5, backgroundColor: COLORS.white },
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    padding: 20,
+    paddingTop: 1,
+    backgroundColor: 'rgba(30,30,30,0.6)',
+    margin: 0,
+  },
+  logo: {
+    width: 370,
+    height: 270,
+    alignSelf: 'center',
+    marginBottom: 0,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 1,
+    marginLeft: 2,
+    fontSize: 15,
+  },
+  input: {
+    height: 44,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 16,
+    borderWidth: 0,
+    marginBottom: 0,
+    color: '#222',
+  },
+  passwordWrapper: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  passwordInput: {
+    paddingRight: 40,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 8,
+    top: 0,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 0,
+  },
+  loginButton: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 1,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+    letterSpacing: 0.5,
+  },
+  registerButton: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  registerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
 });

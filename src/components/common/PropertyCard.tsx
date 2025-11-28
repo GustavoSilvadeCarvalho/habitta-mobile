@@ -14,6 +14,25 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: PropertyCardProps) => {
+    const { width: windowWidth } = useWindowDimensions();
+    
+    // Definição de breakpoints para diferentes tamanhos de tela
+    const isSmallScreen = windowWidth < 375; // iPhone SE e menores
+    const isMediumScreen = windowWidth < 414; // iPhone 11 Pro e similares
+    
+    // Função para determinar o tamanho da fonte baseado na largura da tela
+    const getResponsiveFontSize = () => {
+        if (isSmallScreen) {
+            return 14; // Tamanho menor para telas muito pequenas
+        } else if (isMediumScreen) {
+            return 16; // Tamanho médio para telas médias
+        } else {
+            return 18; // Tamanho padrão para telas maiores
+        }
+    };
+
+    const titlePriceFontSize = getResponsiveFontSize();
+
     const handleFavorite = (event: GestureResponderEvent) => {
         event.stopPropagation();
         if (onFavoritePress) {

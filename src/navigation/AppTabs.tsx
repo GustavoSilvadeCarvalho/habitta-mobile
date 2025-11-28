@@ -34,7 +34,7 @@ export default function AppTabs() {
                     marginLeft: '4%',
                     marginRight: '4%',
                     width: 'auto',
-                    bottom: 50,
+                    bottom: 20,
                     overflow: 'hidden',
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
                 },
