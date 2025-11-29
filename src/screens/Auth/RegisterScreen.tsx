@@ -85,9 +85,16 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
             source={{ uri: 'https://images.unsplash.com/photo-1613977257365-aaae5a9817ff?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }}
             style={styles.background}
             resizeMode="cover"
+            accessibilityLabel="Tela de registro com fundo de um sobrado com piscina"
         >
             <View style={styles.container}>
-                <Image source={require('../../assets/logo-sem-fundo.png')} style={styles.logo} resizeMode="contain" />
+                <Image 
+                    source={require('../../assets/logo-sem-fundo.png')} 
+                    style={styles.logo} 
+                    resizeMode="contain" 
+                    accessibilityLabel="Logo da aplicação"
+                    accessibilityRole="image"
+                />
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Nome</Text>
                     <TextInput
@@ -96,6 +103,9 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                         value={name}
                         onChangeText={setName}
                         placeholderTextColor="#888"
+                        accessibilityLabel="Campo de nome completo"
+                        accessibilityHint="Digite seu nome completo"
+                        accessibilityRole="text"
                     />
                 </View>
                 <View style={styles.inputGroup}>
@@ -108,6 +118,9 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                         keyboardType="email-address"
                         autoCapitalize="none"
                         placeholderTextColor="#888"
+                        accessibilityLabel="Campo de email"
+                        accessibilityHint="Digite seu endereço de email"
+                        accessibilityRole="text"
                     />
                 </View>
                 <View style={styles.inputGroup}>
@@ -119,11 +132,18 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                         onChangeText={setPhone}
                         keyboardType="phone-pad"
                         placeholderTextColor="#888"
+                        accessibilityLabel="Campo de telefone"
+                        accessibilityHint="Digite seu número de telefone"
+                        accessibilityRole="text"
                     />
                 </View>
                 <View style={styles.inputGroup}>
                     {showPasswordRules && (
-                        <View style={styles.passwordRulesDialog}>
+                        <View 
+                            style={styles.passwordRulesDialog}
+                            accessibilityLabel="Regras para criação de senha"
+                            accessibilityRole="summary"
+                        >
                             <Text style={styles.passwordRuleItem}>
                                 {hasLength(password) ? '✔️' : '❌'} Mínimo 8 caracteres
                             </Text>
@@ -151,6 +171,9 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                         placeholderTextColor="#888"
                         onFocus={() => setShowPasswordRules(true)}
                         onBlur={() => password ? setShowPasswordRules(true) : setShowPasswordRules(false)}
+                        accessibilityLabel="Campo de senha"
+                        accessibilityHint="Digite sua senha. As regras de senha serão mostradas quando o campo estiver em foco"
+                        accessibilityRole="text"
                     />
                 </View>
                 <View style={styles.inputGroup}>
@@ -162,17 +185,44 @@ export default function RegisterScreen({ navigation }: RegisterScreenProps) {
                         onChangeText={setConfirmPassword}
                         secureTextEntry
                         placeholderTextColor="#888"
+                        accessibilityLabel="Campo de confirmar senha"
+                        accessibilityHint="Digite novamente sua senha para confirmação"
+                        accessibilityRole="text"
                     />
                 </View>
-                {error ? <Text style={styles.error}>{error}</Text> : null}
-                <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={loading}>
+                {error ? <Text 
+                    style={styles.error}
+                    accessibilityLabel={`Erro: ${error}`}
+                    accessibilityRole="alert"
+                >
+                    {error}
+                </Text> : null}
+                <TouchableOpacity 
+                    style={styles.registerButton} 
+                    onPress={handleRegister} 
+                    disabled={loading}
+                    accessibilityLabel="Botão de cadastrar"
+                    accessibilityHint="Toque para criar sua conta"
+                    accessibilityRole="button"
+                    accessibilityState={{ disabled: loading }}
+                >
                     {loading ? (
-                        <ActivityIndicator size="small" color={COLORS.white} />
+                        <ActivityIndicator 
+                            size="small" 
+                            color={COLORS.white} 
+                            accessibilityLabel="Cadastrando conta"
+                        />
                     ) : (
                         <Text style={styles.registerButtonText}>Cadastrar</Text>
                     )}
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.loginLink} onPress={() => navigation.navigate('Login')}>
+                <TouchableOpacity 
+                    style={styles.loginLink} 
+                    onPress={() => navigation.navigate('Login')}
+                    accessibilityLabel="Ir para tela de login"
+                    accessibilityHint="Toque se já possui uma conta"
+                    accessibilityRole="button"
+                >
                     <Text style={styles.loginLinkText}>Já possui conta? Faça login</Text>
                 </TouchableOpacity>
             </View>

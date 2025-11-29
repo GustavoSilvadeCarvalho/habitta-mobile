@@ -204,4 +204,144 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+    logoutButton: {
+        flex: 1,
+        backgroundColor: COLORS.secondary,
+        paddingVertical: 14,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginLeft: 8,
+    },
+    logoutButtonText: {
+        color: COLORS.white,
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    // Estilos do Modal
+    modalContainer: {
+        flex: 1,
+        paddingTop: 50,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: COLORS.gray,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: COLORS.text,
+    },
+    closeButton: {
+        padding: 5,
+    },
+    modalContent: {
+        flex: 1,
+    },
+    modalScrollContent: {
+        padding: 20,
+        paddingBottom: 40,
+    },
+    inputGroup: {
+        marginBottom: 16,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: COLORS.text,
+        marginBottom: 6,
+    },
+    input: {
+        backgroundColor: COLORS.white,
+        borderWidth: 1,
+        borderColor: COLORS.gray,
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        fontSize: 16,
+        color: COLORS.text,
+    },
+    inputError: {
+        borderColor: 'red',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 12,
+        marginTop: 4,
+    },
+    textArea: {
+        minHeight: 80,
+        textAlignVertical: 'top',
+    },
+    // Layout responsivo
+    mobileRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+    },
+    desktopRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+    },
+    mobileInputGroup: {
+        flex: 1,
+        marginHorizontal: 4,
+    },
+    desktopInputGroup: {
+        flex: 1,
+        marginHorizontal: 8,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+    },
+    column: {
+        marginBottom: 16,
+    },
+    halfWidth: {
+        flex: 1,
+        marginHorizontal: 8,
+    },
+    fullWidth: {
+        width: '100%',
+        marginBottom: 16,
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+        gap: 12,
+    },
+    button: {
+        flex: 1,
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cancelButton: {
+        backgroundColor: COLORS.gray,
+    },
+    submitButton: {
+        backgroundColor: COLORS.primary,
+    },
+    buttonDisabled: {
+        opacity: 0.6,
+    },
+    cancelButtonText: {
+        color: COLORS.text,
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    submitButtonText: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: '600',
+    },
 });
