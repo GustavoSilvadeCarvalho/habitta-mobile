@@ -202,19 +202,6 @@ const styles = StyleSheet.create({
     logoutButtonText: {
         color: COLORS.white,
         fontSize: 16,
-        fontWeight: 'bold',
-    },
-    logoutButton: {
-        flex: 1,
-        backgroundColor: COLORS.secondary,
-        paddingVertical: 14,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginLeft: 8,
-    },
-    logoutButtonText: {
-        color: COLORS.white,
-        fontSize: 16,
         fontWeight: '600',
     },
     // Estilos do Modal

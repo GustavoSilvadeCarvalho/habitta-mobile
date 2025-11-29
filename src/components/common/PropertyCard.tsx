@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, GestureResponderEvent } from 'react-native';
+import { View, Text, Image, TouchableOpacity, GestureResponderEvent, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
 import { cardStyles } from '../Styles/CardStyle';
