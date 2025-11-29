@@ -14,31 +14,6 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
-app.post("/register", async (req, res) => {
-  const { name, email, password, confirmPassword, phone } = req.body;
-  if (!name || !email || !password || !confirmPassword || !phone) {
-    return res.status(400).json({ error: "Todos os campos são obrigatórios." });
-  }
-  if (password !== confirmPassword) {
-    return res.status(400).json({ error: "As senhas não conferem." });
-  }
-  try {
-    const existing = await pool.query("SELECT id FROM users WHERE email = $1", [
-      email,
-    ]);
-    if (existing.rows.length > 0) {
-      return res.status(409).json({ error: "Email já cadastrado." });
-    }
-    const password_hash = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      "INSERT INTO users (name, email, password_hash, phone) VALUES ($1, $2, $3, $4) RETURNING id, name, email, phone",
-      [name, email, password_hash, phone]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: "Erro ao cadastrar usuário." });
-  }
-});
 
 app.get("/favorites/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -90,24 +65,6 @@ app.get("/properties", async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: "Erro ao buscar propriedades." });
-  }
-});
-
-app.get("/properties/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await pool.query(
-      "SELECT * FROM properties WHERE id = $1",
-      [id]
-    );
-    if (result.rows.length > 0) {
-      res.json(result.rows[0]);
-    } else {
-      res.status(404).json({ error: "Propriedade não encontrada." });
-    }
-  } catch (err) {
-    console.error('Erro ao buscar propriedade por ID:', err)
-    res.status(500).json({ error: "Erro interno do servidor." });
   }
 });
 

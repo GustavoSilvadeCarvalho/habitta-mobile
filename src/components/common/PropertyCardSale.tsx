@@ -4,7 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../../constants/colors';
 import { cardStyles } from '../Styles/CardStyle';
 import { Property } from '../../interface/IProperty';
-    
+import Carousel from 'react-native-reanimated-carousel';
+
 
 interface PropertyCardProps {
     property: Property;
@@ -13,7 +14,7 @@ interface PropertyCardProps {
     isFavorite?: boolean;
 }
 
-const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: PropertyCardProps) => {
+const PropertyCardSale = ({ property, onPress, onFavoritePress, isFavorite }: PropertyCardProps) => {
     const handleFavorite = (event: GestureResponderEvent) => {
         event.stopPropagation();
         if (onFavoritePress) {
@@ -21,33 +22,16 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
         }
     };
 
-    const accessibilityLabel = `Imóvel: ${property.title}. Preço: ${property.price} por semana. ${property.bedrooms} quartos, ${property.bathrooms} banheiros. Localizado em ${property.address}.`;
-    const favoriteHint = isFavorite ? "Toque para remover dos favoritos" : "Toque para adicionar aos favoritos";
-
     return (
-        <TouchableOpacity 
-            style={cardStyles.cardContainer} 
-            onPress={onPress} 
-            activeOpacity={0.8}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel={accessibilityLabel}
-            accessibilityHint="Toque para ver mais detalhes."
-        >
+        <TouchableOpacity style={cardStyles.cardContainer} onPress={onPress} activeOpacity={0.8}>
 
-            <Image source={{ uri: property.image_url }} style={cardStyles.image} accessibilityIgnoresInvertColors />
+            <Image source={{ uri: property.image_url }} style={cardStyles.image} />
 
-            <TouchableOpacity 
-                style={cardStyles.favoriteIcon} 
-                onPress={handleFavorite}
-                accessibilityRole="button"
-                accessibilityLabel={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                accessibilityHint={favoriteHint}
-            >
+            <TouchableOpacity style={cardStyles.favoriteIcon} onPress={handleFavorite}>
                 <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color={COLORS.white} />
             </TouchableOpacity>
 
-            <View style={cardStyles.contentContainer} importantForAccessibility="no-hide-descendants">
+            <View style={cardStyles.contentContainer}>
                 <View style={cardStyles.titlePriceRow}>
                     <Text style={cardStyles.title}>{property.title}</Text>
                     <Text style={cardStyles.price}>$ {property.price}</Text>
@@ -55,29 +39,30 @@ const PropertyCard = ({ property, onPress, onFavoritePress, isFavorite }: Proper
 
                 <View style={cardStyles.featuresRow}>
                     <View style={cardStyles.featureItem}>
-                        <Ionicons name="bed-outline" size={16} color={COLORS.textGray} accessible={false} />
+                        <Ionicons name="bed-outline" size={16} color={COLORS.gray} />
                         <Text style={cardStyles.featureText}>{property.bedrooms}</Text>
                     </View>
                     <View style={cardStyles.featureItem}>
-                        <Ionicons name="water-outline" size={16} color={COLORS.textGray} accessible={false} />
+                        <Ionicons name="water-outline" size={16} color={COLORS.gray} />
                         <Text style={cardStyles.featureText}>{property.bathrooms}</Text>
                     </View>
                     <View style={cardStyles.featureItem}>
-                        <Ionicons name="car-sport-outline" size={16} color={COLORS.textGray} accessible={false} />
+                        <Ionicons name="car-sport-outline" size={16} color={COLORS.gray} />
                         <Text style={cardStyles.featureText}>{property.garages}</Text>
                     </View>
-                    <Text style={cardStyles.pricePeriod}>Per Week</Text>
                 </View>
 
                 <View style={cardStyles.addressRow}>
-                    <Ionicons name="location-outline" size={16} color={COLORS.textGray} accessible={false} />
+                    <Ionicons name="location-outline" size={16} color={COLORS.gray} />
                     <Text style={cardStyles.addressText}>{property.address}</Text>
                 </View>
 
                 <Text style={cardStyles.description}>{property.description}</Text>
+                
             </View>
         </TouchableOpacity>
     );
 };
 
-export default PropertyCard;
+export default PropertyCardSale;
+

@@ -13,7 +13,6 @@ interface AuthContextData {
     isTransitioning: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => void;
-    setTransitioning: (value: boolean) => void;
 }
 
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -24,17 +23,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isTransitioning, setIsTransitioning] = useState(false);
     console.log('AuthProvider renderizado. Usuário:', user);
 
-    const setTransitioning = (value: boolean) => setIsTransitioning(value);
-
     const login = async (email: string, password: string) => {
+        console.log('Tentando login com:', email);
+        console.log('Tentando senha com:', password);
         setIsLoading(true);
         try {
             const userData = await authService.login(email, password);
             setUser(userData as User);
+
             setIsTransitioning(true);
+
             setTimeout(() => {
                 setIsTransitioning(false);
-            }, 1000);
+            }, 2000);
+
         } catch (error) {
             console.error(error);
             throw error;
@@ -48,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, isTransitioning, login, logout, setTransitioning }}>
+        <AuthContext.Provider value={{ user, isLoading, isTransitioning, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

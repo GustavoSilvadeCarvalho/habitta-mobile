@@ -1,219 +1,109 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { COLORS } from '../../constants/colors'; 
 import ScreenBackground from '../../components/common/ScreenBackground';
-import ModalImovelCadastro from '../../components/common/ModalImovelCadastro';
 import { Ionicons } from '@expo/vector-icons';
 
-interface ImovelData {
-    titulo: string;
-    endereco: string;
-    tipo: string;
-    quartos: string;
-    banheiros: string;
-    garagens: string;
-    area: string;
-    valor: string;
-    descricao: string;
-    informacoesAdicionais: string;
-}
-
-const INITIAL_IMOVEL_DATA: ImovelData = {
-    titulo: '',
-    endereco: '',
-    tipo: '',
-    quartos: '',
-    banheiros: '',
-    garagens: '',
-    area: '',
-    valor: '',
-    descricao: '',
-    informacoesAdicionais: ''
-};
-
-export default function ProfileScreen() {
-    const [showCadastroForm, setShowCadastroForm] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [imovelData, setImovelData] = useState<ImovelData>(INITIAL_IMOVEL_DATA);
-    const { user, logout, setTransitioning } = useContext(AuthContext);
-    const [erros, setErros] = useState<Partial<Record<keyof ImovelData, string>>>({});
-
-    const validarFormulario = (): boolean => {
-        let novosErros: Partial<Record<keyof ImovelData, string>> = {};
-        let valido = true;
-
-        if (!imovelData.titulo.trim()) {
-            novosErros.titulo = 'O título é obrigatório.';
-            valido = false;
-        }
-        if (!imovelData.endereco.trim()) {
-            novosErros.endereco = 'O endereço é obrigatório.';
-            valido = false;
-        }
-        if (!imovelData.tipo.trim()) {
-            novosErros.tipo = 'O tipo é obrigatório.';
-            valido = false;
-        }
-
-        const valorNumerico = Number(imovelData.valor.replace(',', '.'));
-        if (imovelData.valor && isNaN(valorNumerico)) {
-            novosErros.valor = 'Informe um valor válido.';
-            valido = false;
-        }
-
-        setErros(novosErros);
-
-        if (!valido) {
-            Alert.alert('Erro no Formulário', 'Por favor, corrija os campos indicados.');
-        }
-
-        return valido;
-    };
-
-    const formatarDadosParaEnvio = () => {
-        const parseNum = (str: string) => str ? parseInt(str) : 0;
-        const parseFloatNum = (str: string) => str ? parseFloat(str.replace(',', '.')) : 0;
-        
-        return {
-            ...imovelData,
-            quartos: parseNum(imovelData.quartos),
-            banheiros: parseNum(imovelData.banheiros),
-            garagens: parseNum(imovelData.garagens),
-            area: parseFloatNum(imovelData.area),
-            valor: parseFloatNum(imovelData.valor),
-        };
-    };
-
-    const enviarParaAPI = async (dados: any): Promise<boolean> => {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                console.log('Dados enviados para API:', dados);
-                resolve(true);
-            }, 2000);
-        });
-    };
-
-    const handleCadastrarImovel = async () => {
-        if (!validarFormulario()) {
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const dadosFormatados = formatarDadosParaEnvio();
-            
-            const sucesso = await enviarParaAPI(dadosFormatados);
-
-            if (sucesso) {
-                Alert.alert(
-                    'Sucesso!',
-                    'Imóvel cadastrado com sucesso!',
-                    [{
-                        text: 'OK',
-                        onPress: () => {
-                            setImovelData(INITIAL_IMOVEL_DATA);
-                            setErros({});
-                            setShowCadastroForm(false);
-                        }
-                    }]
-                );
-            } else {
-                throw new Error('Falha no cadastro (Resposta da API não foi sucesso)');
-            }
-        } catch (error) {
-            console.error('Erro no cadastro:', error);
-            Alert.alert('Erro', 'Não foi possível cadastrar o imóvel. Tente novamente.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const updateImovelData = (field: keyof ImovelData, value: string) => {
-        if (erros[field]) {
-            setErros(prev => {
-                const { [field]: _, ...rest } = prev;
-                return rest;
-            });
-        }
-
-        let cleanValue = value;
-        if (['quartos', 'banheiros', 'garagens'].includes(field)) {
-            cleanValue = value.replace(/[^0-9]/g, '');
-        } else if (['area', 'valor'].includes(field)) {
-            cleanValue = value.replace(/[^0-9,.]/g, ''); 
-        }
-
-        setImovelData(prev => ({
-            ...prev,
-            [field]: cleanValue
-        }));
-    };
-
-    const handleCancelar = () => {
-        setImovelData(INITIAL_IMOVEL_DATA);
-        setErros({});
-        setShowCadastroForm(false);
-    };
+export default function ProfileScreen({ navigation }: any) {
+    const { user, logout } = useContext(AuthContext);
 
     return (
         <ScreenBackground style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-                <Text style={styles.title}>Meu Perfil</Text>
-                <View style={styles.profileContent}>
-                        <View style={styles.profileImage}></View>
-                        <Text style={styles.profileTextName}>{user?.name}</Text>
-                        <Text style={styles.profileText}>{user?.email}</Text>
-                        <View style={styles.editContent}>
-                            <View style={styles.editContentLeft}>
-                                <Ionicons name="person-outline" size={33} color={COLORS.text}/>
-                                <Text style={styles.editText}>Informações Pessoais</Text>
-                            </View>
-                            <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} />
-                        </View>
-                        <View style={styles.editContent}>
-                            <View style={styles.editContentLeft}>
-                                <Ionicons name="shield-checkmark-outline" size={33} color={COLORS.text}/>
-                                <Text style={styles.editText}>Email & Senha</Text>
-                            </View>
-                            <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} />
-                        </View>
-                        <View style={styles.editContent}>
-                            <View style={styles.editContentLeft}>
-                                <Ionicons name="notifications-outline" size={33} color={COLORS.text}/>
-                                <Text style={styles.editText}>Notificações</Text>
-                            </View>
-                            <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} />
-                        </View>
-                        <View style={styles.editContent}>
-                            <View style={styles.editContentLeft}>
-                                <Ionicons name="help-outline" size={33} color={COLORS.text}/>
-                                <Text style={styles.editText}>Ajuda</Text>
-                            </View>
-                            <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} />
-                        </View>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <Text style={styles.title} accessibilityRole="header">Meu Perfil</Text>
+
+                <View style={styles.profileContent} accessible>
+                    <View style={styles.profileImage} />
+                    <Text style={styles.profileTextName} accessibilityLabel={`Nome do usuário: ${user?.name}`}>{user?.name}</Text>
+                    <Text style={styles.profileText} accessibilityLabel={`Email do usuário: ${user?.email}`}>{user?.email}</Text>
                 </View>
-                {!showCadastroForm ? (
-                    <View>
-                        <TouchableOpacity 
-                            style={styles.cadastroButton}
-                            onPress={() => setShowCadastroForm(true)}
-                            disabled={loading}
-                        />
+
+                <View style={styles.optionsContainer}>
+                    <TouchableOpacity 
+                        style={styles.optionRow} 
+                        onPress={() => { /* navegar para editar info pessoais */ }}
+                        accessible
+                        accessibilityRole="button"
+                        accessibilityLabel="Informações Pessoais"
+                        accessibilityHint="Toque para editar suas informações pessoais"
+                    >
+                        <View style={styles.optionLeft} importantForAccessibility='no-hide-descendants'>
+                            <Ionicons name="person-outline" size={26} color={COLORS.text}/>
+                            <Text style={styles.optionText}>Informações Pessoais</Text>
+                        </View>
+                        <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} importantForAccessibility='no-hide-descendants' />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                        style={styles.optionRow} 
+                        onPress={() => { /* navegar para email/senha */ }}
+                        accessible
+                        accessibilityRole="button"
+                        accessibilityLabel="Email e Senha"
+                        accessibilityHint="Toque para gerenciar seu email e senha"
+                    >
+                        <View style={styles.optionLeft} importantForAccessibility='no-hide-descendants'>
+                            <Ionicons name="shield-checkmark-outline" size={26} color={COLORS.text}/>
+                            <Text style={styles.optionText}>Email & Senha</Text>
+                        </View>
+                        <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} importantForAccessibility='no-hide-descendants' />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                        style={styles.optionRow} 
+                        onPress={() => { /* navegar para notificações */ }}
+                        accessible
+                        accessibilityRole="button"
+                        accessibilityLabel="Notificações"
+                        accessibilityHint="Toque para gerenciar suas notificações"
+                    >
+                        <View style={styles.optionLeft} importantForAccessibility='no-hide-descendants'>
+                            <Ionicons name="notifications-outline" size={26} color={COLORS.text}/>
+                            <Text style={styles.optionText}>Notificações</Text>
+                        </View>
+                        <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} importantForAccessibility='no-hide-descendants' />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity 
+                        style={styles.optionRow} 
+                        onPress={() => { /* navegar para ajuda */ }}
+                        accessible
+                        accessibilityRole="button"
+                        accessibilityLabel="Ajuda"
+                        accessibilityHint="Toque para obter ajuda"
+                    >
+                        <View style={styles.optionLeft} importantForAccessibility='no-hide-descendants'>
+                            <Ionicons name="help-outline" size={26} color={COLORS.text}/>
+                            <Text style={styles.optionText}>Ajuda</Text>
+                        </View>
+                        <Ionicons name="chevron-forward-outline" size={20} color={COLORS.text} importantForAccessibility='no-hide-descendants' />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.buttonsRow}>
+                    <TouchableOpacity
+                        style={styles.cadastroButton}
+                        onPress={() => navigation.navigate('Cadastro de Imoveis')}
+                        accessible
+                        accessibilityRole="button"
+                        accessibilityLabel="Cadastrar Imóvel"
+                        accessibilityHint="Toque para ir para a tela de cadastro de imóveis"
+                    >
                         <Text style={styles.cadastroButtonText}>Cadastrar Imóvel</Text>
-                    </View>
-                ) : (
-                    <ModalImovelCadastro
-                        visible={showCadastroForm}
-                        loading={loading}
-                        imovelData={imovelData}
-                        erros={erros}
-                        onChange={updateImovelData}
-                        onSubmit={handleCadastrarImovel}
-                        onCancel={handleCancelar}
-                    />
-                )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.logoutButton}
+                        onPress={logout}
+                        accessible
+                        accessibilityRole="button"
+                        accessibilityLabel="Sair"
+                        accessibilityHint="Toque para sair da sua conta"
+                    >
+                        <Text style={styles.logoutButtonText}>Sair</Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </ScreenBackground>
     );
@@ -221,12 +111,11 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        display: 'flex',
-        flexDirection: 'column',
         flex: 1,
         backgroundColor: COLORS.background,
     },
     scrollContainer: {
+        paddingTop: 65,
         flexGrow: 1,
         padding: 20,
     },
@@ -235,65 +124,83 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 20,
-        color: COLORS.primary,
+        color: COLORS.text,
     },
     profileContent: {
-        display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 10,
+        marginBottom: 20,
     },
     profileImage: {
         width: 100,
         height: 100,
         borderRadius: 50,
         backgroundColor: COLORS.secondary,
-    },
-    profileText: {
-        fontSize: 16,
-        textAlign: 'left',
-        color: COLORS.text,
+        marginBottom: 12,
     },
     profileTextName: {
         fontSize: 20,
-        textAlign: 'left',
         color: COLORS.text,
+        marginBottom: 4,
     },
-    editContent: {
-        marginTop: 15,
+    profileText: {
+        fontSize: 16,
+        color: COLORS.textGray,
+    },
+    optionsContainer: {
+        marginTop: 10,
+        marginBottom: 20,
+    },
+    optionRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 5,
         borderWidth: 1,
-        borderColor: COLORS.gray,
-        padding: 10,
-        paddingVertical: 15,
-        width: '90%',
-        borderRadius: 13,
+        borderColor: COLORS.textGray,
+        padding: 12,
+        borderRadius: 12,
+        marginBottom: 12,
+        backgroundColor: COLORS.white,
     },
-    editContentLeft: {
+    optionLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 12,
     },
-    editText: {
+    optionText: {
         fontSize: 16,
         color: COLORS.text,
+        marginLeft: 12,
+    },
+    buttonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+        marginTop: 10,
     },
     cadastroButton: {
+        flex: 1,
         backgroundColor: COLORS.primary,
-        paddingHorizontal: 30,
-        paddingVertical: 15,
+        paddingVertical: 14,
         borderRadius: 10,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        alignItems: 'center',
+        marginRight: 8,
     },
     cadastroButtonText: {
-        color: 'white',
+        color: COLORS.white,
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    logoutButton: {
+        flex: 1,
+        backgroundColor: COLORS.secondary,
+        paddingVertical: 14,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginLeft: 8,
+    },
+    logoutButtonText: {
+        color: COLORS.white,
         fontSize: 16,
         fontWeight: 'bold',
     },

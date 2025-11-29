@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { COLORS } from '../../constants/colors';
 import ScreenBackground from '../../components/common/ScreenBackground';
-import PropertyCard, { Property } from '../../components/common/PropertyCard';
+import PropertyCard from '../../components/common/PropertyCard';
+import { Property } from '../../interface/IProperty';
 import { useFavorites } from '../../hooks/UseFavorites';
 
 export default function FavoritesScreen({ navigation }: any) {
@@ -42,16 +43,16 @@ export default function FavoritesScreen({ navigation }: any) {
 
     return (
         <ScreenBackground style={styles.container}>
-            <Text style={styles.pageTitle}>Imóveis Salvos</Text>
+            <Text style={styles.pageTitle} accessibilityRole="header">Imóveis Salvos</Text>
             {loading ? (
-                <Text style={styles.emptyMessage}>Carregando favoritos...</Text>
+                <Text style={styles.emptyMessage} accessibilityLiveRegion="polite">Carregando favoritos...</Text>
             ) : savedProperties.length === 0 ? (
-                <Text style={styles.emptyMessage}>
+                <Text style={styles.emptyMessage} accessibilityLiveRegion="polite">
                     Você ainda não salvou nenhum imóvel
                 </Text>
             ) : (
                 <>
-                    <Text style={styles.countText}>
+                    <Text style={styles.countText} accessibilityLiveRegion="polite">
                         {savedProperties.length} imóvel(s) salvo(s)
                     </Text>
                     <FlatList
@@ -93,12 +94,12 @@ const styles = StyleSheet.create({
     emptyMessage: {
         textAlign: 'center',
         fontSize: 16,
-        color: COLORS.gray,
+        color: COLORS.textGray,
         marginTop: 50,
     },
     countText: {
         fontSize: 14,
-        color: COLORS.gray,
+        color: COLORS.textGray,
         marginBottom: 10,
     },
     clearButton: {
